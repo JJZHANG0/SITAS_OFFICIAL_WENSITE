@@ -57,7 +57,7 @@ export function HomePage() {
             <em>{t.heroB}</em>
           </h1>
         </div>
-        <div className="home-seam" />
+        <div className="home-seam" aria-hidden="true" />
       </section>
 
       <section className="home-right" ref={sampleRef}>
