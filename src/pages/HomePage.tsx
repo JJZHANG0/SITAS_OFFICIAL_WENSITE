@@ -1,13 +1,20 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArcPicker, type ArcDestination } from '../components/ArcPicker'
-import { PixelWave } from '../components/PixelWave'
+import { PixelMagnifier } from '../components/PixelMagnifier'
 import { useSite } from '../context/SiteContext'
 
 export function HomePage() {
   const { t, lang, theme, setLang, setTheme } = useSite()
   const navigate = useNavigate()
   const [leaving, setLeaving] = useState(false)
+  const sampleRef = useRef<HTMLElement>(null)
+
+  const heroSrc = useMemo(() => {
+    const file =
+      theme === 'light' ? 'sitas-hero-light-v9.png' : 'sitas-hero-dark-v9.png'
+    return `${import.meta.env.BASE_URL}${file}`
+  }, [theme])
 
   const destinations: ArcDestination[] = useMemo(
     () => [
@@ -40,12 +47,8 @@ export function HomePage() {
     >
       <div className={`home-bloom${leaving ? ' active' : ''}`} aria-hidden="true" />
 
-      <section className="home-left" aria-hidden="true">
-        <PixelWave />
-        <div className="home-seam" />
-      </section>
-
-      <section className="home-right">
+      <section className="home-left">
+        <PixelMagnifier sampleTargetRef={sampleRef} imageSrc={heroSrc} />
         <div className="home-brand">
           <p className="eyebrow">{t.heroKicker}</p>
           <h1>
@@ -54,7 +57,16 @@ export function HomePage() {
             <em>{t.heroB}</em>
           </h1>
         </div>
+        <div className="home-seam" />
+      </section>
 
+      <section className="home-right" ref={sampleRef}>
+        <div
+          className="home-hero-bg"
+          style={{ backgroundImage: `url(${heroSrc})` }}
+          aria-hidden="true"
+        />
+        <div className="home-right-veil" aria-hidden="true" />
         <ArcPicker
           items={destinations}
           enterLabel={t.enter}

@@ -21,11 +21,9 @@ type Props = {
 }
 
 /**
- * Half-arc destination wheel. Mouse wheel / trackpad rotates selection;
- * click or Enter commits the selected route.
- *
- * Geometry: circle center sits near the right edge; selected item sits
- * at the leftmost point of the arc (toward the screen center / seam).
+ * Half-arc destination wheel along the right edge.
+ * Curve opens toward the right (items on a rightward half-arc).
+ * Mouse wheel / trackpad rotates selection; click or Enter commits.
  */
 export function ArcPicker({ items, enterLabel, onEnter, disabled }: Props) {
   const [index, setIndex] = useState(0)
@@ -94,9 +92,9 @@ export function ArcPicker({ items, enterLabel, onEnter, disabled }: Props) {
       let offset = i - (((index % n) + n) % n)
       if (offset > n / 2) offset -= n
       if (offset < -n / 2) offset += n
-      // ~20° per step; θ=0 → due west (toward seam)
-      const rad = (offset * 20 * Math.PI) / 180
-      const x = -Math.cos(rad) // -1 at selection (leftward)
+      // ~22° per step; θ=0 → due east (rightward, along right edge)
+      const rad = (offset * 22 * Math.PI) / 180
+      const x = Math.cos(rad) // +1 at selection (rightward)
       const y = Math.sin(rad)
       const active = offset === 0
       const dist = Math.abs(offset)
