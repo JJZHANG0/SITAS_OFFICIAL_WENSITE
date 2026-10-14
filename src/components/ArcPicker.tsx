@@ -23,7 +23,7 @@ type Props = {
 /**
  * Half-arc destination wheel along the right edge.
  * Curve opens toward the right (items on a rightward half-arc).
- * Mouse wheel / trackpad rotates selection; click or Enter commits.
+ * Mouse wheel / ▲▼ / keyboard rotates selection; click or Enter commits.
  */
 export function ArcPicker({ items, enterLabel, onEnter, disabled }: Props) {
   const [index, setIndex] = useState(0)
@@ -110,6 +110,16 @@ export function ArcPicker({ items, enterLabel, onEnter, disabled }: Props) {
       role="listbox"
       aria-label="Destinations"
     >
+      <button
+        type="button"
+        className="arc-step arc-step-up"
+        aria-label="Previous destination"
+        disabled={disabled}
+        onClick={() => rotate(-1)}
+      >
+        ▲
+      </button>
+
       <div className="arc-stage">
         <div className="arc-rail" aria-hidden="true" />
         {positions.map(({ item, x, y, active, dist }) => (
@@ -133,6 +143,16 @@ export function ArcPicker({ items, enterLabel, onEnter, disabled }: Props) {
           </button>
         ))}
       </div>
+
+      <button
+        type="button"
+        className="arc-step arc-step-down"
+        aria-label="Next destination"
+        disabled={disabled}
+        onClick={() => rotate(1)}
+      >
+        ▼
+      </button>
 
       <button
         type="button"

@@ -22,25 +22,47 @@ type SiteContextValue = {
 
 const SiteContext = createContext<SiteContextValue | null>(null)
 
-export function SiteProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>('en')
-  const [theme, setThemeState] = useState<Theme>('dark')
+function readLang(): Lang {
+  try {
+    const stored = localStorage.getItem('sitas-language')
+    if (stored === 'en' || stored === 'zh') return stored
+  } catch {
+    /* ignore */
+  }
+  return 'en'
+}
 
-  useEffect(() => {
-    const storedLang = localStorage.getItem('sitas-language')
-    const storedTheme = localStorage.getItem('sitas-theme')
-    if (storedLang === 'en' || storedLang === 'zh') setLangState(storedLang)
-    if (storedTheme === 'light' || storedTheme === 'dark') setThemeState(storedTheme)
-  }, [])
+function readTheme(): Theme {
+  try {
+    const stored = localStorage.getItem('sitas-theme')
+    if (stored === 'light' || stored === 'dark') return stored
+  } catch {
+    /* ignore */
+  }
+  return 'dark'
+}
+
+export function SiteProvider({ children }: { children: ReactNode }) {
+  // Default language = English when localStorage is unset
+  const [lang, setLangState] = useState<Lang>(readLang)
+  const [theme, setThemeState] = useState<Theme>(readTheme)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
-    localStorage.setItem('sitas-theme', theme)
+    try {
+      localStorage.setItem('sitas-theme', theme)
+    } catch {
+      /* ignore */
+    }
   }, [theme])
 
   useEffect(() => {
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en'
-    localStorage.setItem('sitas-language', lang)
+    try {
+      localStorage.setItem('sitas-language', lang)
+    } catch {
+      /* ignore */
+    }
   }, [lang])
 
   const setLang = useCallback((next: Lang) => setLangState(next), [])
