@@ -14,16 +14,16 @@ export default function App() {
     <SiteProvider>
       <BrowserRouter basename="/SITAS_OFFICIAL_WENSITE">
         <Routes>
+          <Route index element={<HomePage />} />
           <Route element={<Layout />}>
-            <Route index element={<HomePage />} />
             <Route path="introduce" element={<IntroducePage />} />
             <Route path="product" element={<ProductPage />} />
             <Route path="cases" element={<CasesPage />} />
             <Route path="partnership" element={<PartnershipPage />} />
             <Route path="development" element={<DevelopmentPage />} />
             <Route path="about" element={<AboutPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </SiteProvider>

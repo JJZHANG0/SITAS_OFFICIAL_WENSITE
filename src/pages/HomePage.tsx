@@ -1,31 +1,76 @@
-import { Link } from 'react-router-dom'
-import { Arrow } from '../components/Arrow'
+import { useCallback, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { ArcPicker, type ArcDestination } from '../components/ArcPicker'
+import { PixelWave } from '../components/PixelWave'
 import { useSite } from '../context/SiteContext'
 
 export function HomePage() {
-  const { t } = useSite()
+  const { t, lang, theme, setLang, setTheme } = useSite()
+  const navigate = useNavigate()
+  const [leaving, setLeaving] = useState(false)
+
+  const destinations: ArcDestination[] = useMemo(
+    () => [
+      { id: 'introduce', label: t.navHome[0], path: '/introduce' },
+      { id: 'product', label: t.navHome[1], path: '/product' },
+      { id: 'cases', label: t.navHome[2], path: '/cases' },
+      { id: 'partnership', label: t.navHome[3], path: '/partnership' },
+      { id: 'development', label: t.navHome[4], path: '/development' },
+      { id: 'about', label: t.navHome[5], path: '/about' },
+    ],
+    [t],
+  )
+
+  const onEnter = useCallback(
+    (item: ArcDestination) => {
+      if (leaving) return
+      setLeaving(true)
+      window.setTimeout(() => {
+        navigate(item.path)
+      }, 780)
+    },
+    [leaving, navigate],
+  )
+
   return (
-    <section className="slide hero visible" id="hero">
-      <div className="hero-visual" />
-      <div className="hero-copy entrance">
-        <p className="eyebrow">{t.heroKicker}</p>
-        <h1>
-          {t.heroA}
-          <br />
-          <em>{t.heroB}</em>
-        </h1>
-        <div className="reserved-copy">
-          <span />
-          <span />
+    <main
+      className={`home-immersive${leaving ? ' is-leaving' : ''}`}
+      data-theme={theme}
+      data-lang={lang}
+    >
+      <div className={`home-bloom${leaving ? ' active' : ''}`} aria-hidden="true" />
+
+      <section className="home-left" aria-hidden="true">
+        <PixelWave />
+        <div className="home-seam" />
+      </section>
+
+      <section className="home-right">
+        <div className="home-brand">
+          <p className="eyebrow">{t.heroKicker}</p>
+          <h1>
+            {t.heroA}
+            <br />
+            <em>{t.heroB}</em>
+          </h1>
         </div>
-        <Link className="text-link" to="/introduce">
-          {t.discover} <Arrow />
-        </Link>
+
+        <ArcPicker
+          items={destinations}
+          enterLabel={t.enter}
+          onEnter={onEnter}
+          disabled={leaving}
+        />
+      </section>
+
+      <div className="home-utils">
+        <button type="button" onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}>
+          {lang === 'en' ? '中文' : 'EN'}
+        </button>
+        <button type="button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+          {theme === 'dark' ? t.light : t.dark}
+        </button>
       </div>
-      <div className="scroll-cue">
-        <span>{t.scroll}</span>
-        <i />
-      </div>
-    </section>
+    </main>
   )
 }
