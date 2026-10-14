@@ -18,9 +18,6 @@ export function ProductPage() {
           <h1 className="headline-oneline">{t.productTitle}</h1>
           <p className="page-lead">{t.productLead}</p>
         </Reveal>
-        <Reveal className="page-hero-visual" delay={80}>
-          <VisualSlot label="VISUAL / DEVICE SILHOUETTE" ratio="square" />
-        </Reveal>
       </div>
 
       <Reveal className="flow-block" delay={60}>

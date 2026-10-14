@@ -51,8 +51,8 @@ export function HomePage() {
         <PixelMagnifier sampleTargetRef={sampleRef} imageSrc={heroSrc} />
         <div className="home-brand">
           <p className="eyebrow">{t.heroKicker}</p>
-          <h1 className="headline-oneline">
-            <span className="headline-line">{t.heroA}</span>{' '}
+          <h1 className="home-slogan">
+            <span className="headline-line">{t.heroA}</span>
             <em>{t.heroB}</em>
           </h1>
         </div>

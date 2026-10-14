@@ -16,9 +16,6 @@ export function IntroducePage() {
           <h1 className="headline-oneline">{t.introTitle}</h1>
           <p className="page-lead">{t.introLead}</p>
         </Reveal>
-        <Reveal className="page-hero-visual" delay={80}>
-          <VisualSlot label="VISUAL / CAPTURE PIPELINE" ratio="wide" />
-        </Reveal>
       </div>
 
       <div className="intro-split">

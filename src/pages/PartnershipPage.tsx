@@ -15,9 +15,6 @@ export function PartnershipPage() {
           <h1 className="headline-oneline">{t.partnerTitle}</h1>
           <p className="page-lead">{t.partnerLead}</p>
         </Reveal>
-        <Reveal className="page-hero-visual" delay={80}>
-          <VisualSlot label="VISUAL / ECOSYSTEM MAP" ratio="wide" />
-        </Reveal>
       </div>
 
       <div className="partner-grid partner-grid--rich">

@@ -215,10 +215,12 @@ html, body, #root {
 .home-left .home-brand {
   position: absolute;
   left: clamp(20px, 3.5vw, 48px);
-  right: clamp(20px, 4vw, 56px);
+  right: clamp(28px, 6vw, 72px);
   bottom: clamp(28px, 5vh, 56px);
   z-index: 4;
   pointer-events: none;
+  max-width: min(100%, 34vw);
+  box-sizing: border-box;
   padding: 18px 20px 16px;
   border-radius: 4px;
   background: linear-gradient(
@@ -332,7 +334,8 @@ html, body, #root {
   pointer-events: auto;
 }
 .arc-stage {
-  --arc-r: min(42vw, 380px);
+  --arc-r: min(36vw, 320px);
+  --arc-inset: clamp(150px, 24%, 220px);
   position: relative;
   height: min(62vh, 520px);
   width: 100%;
@@ -340,7 +343,7 @@ html, body, #root {
 .arc-rail {
   position: absolute;
   top: 50%;
-  left: calc(100% - var(--arc-r) - 5%);
+  left: calc(100% - var(--arc-r) - var(--arc-inset, clamp(150px, 24%, 220px)));
   width: calc(var(--arc-r) * 2);
   height: calc(var(--arc-r) * 2);
   border: 1px solid var(--home-line);
@@ -355,7 +358,7 @@ html, body, #root {
 .arc-item {
   position: absolute;
   top: 50%;
-  left: calc(100% - var(--arc-r) - 5%);
+  left: calc(100% - var(--arc-r) - var(--arc-inset, clamp(150px, 24%, 220px)));
   transform: translate(
       calc(var(--ax) * var(--arc-r) - 50%),
       calc(var(--ay) * var(--arc-r) - 50%)
@@ -388,7 +391,7 @@ html, body, #root {
       calc(var(--ax) * var(--arc-r) - 50%),
       calc(var(--ay) * var(--arc-r) - 50%)
     )
-    scale(1.38);
+    scale(1.22);
   text-shadow: 0 0 28px color-mix(in srgb, var(--home-text) 35%, transparent),
     0 2px 14px color-mix(in srgb, var(--home-bg) 80%, transparent);
   letter-spacing: 0.2em;
@@ -638,7 +641,8 @@ html, body, #root {
     bottom: 100px;
   }
   .arc-stage {
-    --arc-r: min(58vw, 280px);
+    --arc-r: min(48vw, 240px);
+    --arc-inset: clamp(96px, 28%, 160px);
     height: min(48vh, 360px);
   }
   .arc-item {
@@ -771,16 +775,19 @@ html, body, #root {
 
 /* ---- Deep inner pages: scrollable shells, richer hierarchy ---- */
 .site {
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   height: 100svh;
 }
 
 .page-shell > .slide.page-deep {
   height: auto;
   min-height: 100svh;
-  overflow: visible;
+  overflow-x: hidden;
+  overflow-y: visible;
   display: block;
   padding-bottom: clamp(64px, 10vh, 120px);
+  max-width: 100%;
 }
 
 .page-deep .page-hero {
@@ -1496,10 +1503,15 @@ code,
   font-family: var(--font-sans) !important;
   font-style: normal !important;
   color: var(--home-muted);
-  white-space: nowrap;
+  white-space: normal;
   font-size: clamp(18px, 2.6vw, 42px);
   letter-spacing: -0.03em;
-  line-height: 1.1;
+  line-height: 1.18;
+  max-width: 100%;
+}
+.home-brand h1 .headline-line,
+.home-brand h1 em {
+  display: block;
 }
 
 .home-brand h1 em {
@@ -1526,7 +1538,7 @@ code,
     var(--bg);
 }
 
-/* ---- One-line headlines ---- */
+/* ---- Page headlines: readable, wrap cleanly if needed ---- */
 .headline-oneline,
 .page-deep .page-hero h1,
 .page-deep .page-hero h2,
@@ -1536,20 +1548,22 @@ code,
 .about-inner h2,
 .final-slide h1,
 .final-slide h2 {
-  white-space: nowrap;
+  white-space: normal;
   font-size: clamp(22px, 4.2vw, 68px);
   letter-spacing: -0.04em;
-  line-height: 1.05;
+  line-height: 1.08;
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: clip;
+  overflow: visible;
+  text-overflow: unset;
   font-family: var(--font-sans);
   font-weight: 400;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
+.page-deep .page-hero h1,
 .page-deep .page-hero h2 {
-  /* legacy class still used in some places */
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .site[data-lang="zh"] .headline-oneline,
@@ -1573,23 +1587,29 @@ code,
   }
 }
 
-/* Hero row: copy + visual */
+/* Hero row: title first, visual below (never beside / covering title) */
 .page-hero-row {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: clamp(20px, 4vw, 48px);
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 3vh, 36px);
+  align-items: stretch;
   margin-bottom: clamp(36px, 6vh, 64px);
   position: relative;
   z-index: 2;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .page-hero-row .page-hero {
   margin-bottom: 0;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .page-hero-visual {
   min-width: 0;
+  width: 100%;
+  max-width: min(720px, 100%);
 }
 
 .flow-visual {
@@ -1600,11 +1620,6 @@ code,
   margin-top: 24px;
 }
 
-@media (max-width: 1000px) {
-  .page-hero-row {
-    grid-template-columns: 1fr;
-  }
-}
 
 /* Visual placeholder slots */
 .visual-slot {
@@ -1912,7 +1927,7 @@ code,
 
 .company-title .headline-oneline {
   font-size: clamp(40px, 8vw, 120px);
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .about-inner .headline-oneline {
@@ -1936,4 +1951,41 @@ code,
 
 .product-section .feature-list p {
   opacity: 0.65;
+}
+
+/* ---- Layout overflow fixes (2026-10-14) ---- */
+.page-shell {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+.introduce.page-deep {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+.introduce > .tech-raster {
+  right: 0;
+  max-width: 100%;
+}
+
+.introduce .pixel-field {
+  left: 0;
+  width: min(42vw, 100%);
+}
+
+.product-section > .tech-raster,
+.cases > .tech-raster {
+  left: 0;
+}
+
+.about-stack {
+  overflow-x: hidden;
+}
+
+@media (max-width: 1000px) {
+  .home-left .home-brand {
+    max-width: none;
+    right: 16px;
+  }
 }

@@ -16,9 +16,6 @@ export function CasesPage() {
           <h1 className="headline-oneline">{t.caseTitle}</h1>
           <p className="page-lead">{t.caseLead}</p>
         </Reveal>
-        <Reveal className="page-hero-visual" delay={80}>
-          <VisualSlot label="VISUAL / VERIFY UI" ratio="wide" />
-        </Reveal>
       </div>
 
       <div className="cases-stage">
