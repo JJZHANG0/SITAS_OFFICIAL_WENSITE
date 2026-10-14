@@ -1,5 +1,7 @@
 import { Logo } from '../components/Logo'
 import { Reveal } from '../components/Reveal'
+import { VisualSlot } from '../components/VisualSlot'
+import { PageCta } from '../components/PageCta'
 import { useSite } from '../context/SiteContext'
 
 export function AboutPage() {
@@ -10,14 +12,17 @@ export function AboutPage() {
         <div className="page-no">06 / ABOUT US · COMPANY</div>
         <Reveal className="company-title">
           <p className="eyebrow">{t.companyKicker}</p>
-          <h2>
+          <h1 className="headline-oneline">
             Verisci<span>.</span>
-          </h2>
+          </h1>
           <p className="microcopy">{t.companyLine}</p>
         </Reveal>
         <Reveal className="company-statement" delay={100}>
           <p>{t.companyLead}</p>
           <span>{t.companyBody}</span>
+          <div className="company-visual">
+            <VisualSlot label="VISUAL / LAB + LENS" ratio="wide" />
+          </div>
         </Reveal>
         <Reveal className="orb" delay={180}>
           <i />
@@ -26,16 +31,21 @@ export function AboutPage() {
 
       <section className="slide page-deep about visible" id="about-team">
         <div className="page-no">07 / ABOUT US · TEAM</div>
-        <Reveal className="about-inner">
-          <p className="eyebrow">{t.aboutKicker}</p>
-          <h2>{t.aboutTitle}</h2>
-          <p>{t.aboutBody}</p>
-          <div className="principles">
-            {t.principles.map((p) => (
-              <span key={p}>{p}</span>
-            ))}
-          </div>
-        </Reveal>
+        <div className="page-hero-row">
+          <Reveal className="about-inner">
+            <p className="eyebrow">{t.aboutKicker}</p>
+            <h1 className="headline-oneline">{t.aboutTitle}</h1>
+            <p className="page-lead">{t.aboutBody}</p>
+            <div className="principles">
+              {t.principles.map((p) => (
+                <span key={p}>{p}</span>
+              ))}
+            </div>
+          </Reveal>
+          <Reveal className="page-hero-visual" delay={80}>
+            <VisualSlot label="VISUAL / TEAM / LAB" ratio="square" />
+          </Reveal>
+        </div>
 
         <Reveal className="about-team-block" delay={120}>
           <h3>{t.aboutTeamTitle}</h3>
@@ -49,13 +59,31 @@ export function AboutPage() {
             ))}
           </div>
         </Reveal>
+
+        <Reveal className="about-cta-block" delay={160}>
+          <p className="eyebrow">{t.ctaPilot}</p>
+          <p className="about-cta-lead">
+            {t.promiseBody}
+          </p>
+          <PageCta
+            primaryLabel={t.ctaPilot}
+            showDownload
+            secondary={{ to: '/partnership', label: t.ctaSeePartner }}
+            tertiary={{ to: '/product', label: t.ctaSeeProduct }}
+          />
+        </Reveal>
       </section>
 
       <footer className="slide final-slide visible" id="promise">
         <Reveal>
           <p className="eyebrow">{t.promise}</p>
-          <h2>{t.footer}</h2>
+          <h1 className="headline-oneline">{t.footer}</h1>
           <p className="promise-body">{t.promiseBody}</p>
+          <PageCta
+            className="final-cta"
+            primaryLabel={t.ctaTalk}
+            secondary={{ to: '/partnership', label: t.ctaSeePartner }}
+          />
           <Logo />
         </Reveal>
         <div className="footer-line">

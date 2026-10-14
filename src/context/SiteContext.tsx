@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
@@ -18,6 +19,10 @@ type SiteContextValue = {
   t: Copy
   setLang: (lang: Lang) => void
   setTheme: (theme: Theme) => void
+  /** Logo stroke loader overlay (home → inner page) */
+  loaderVisible: boolean
+  /** Show ~1.5s logo loader, run action early so destination mounts under overlay */
+  runWithLogoLoader: (action: () => void) => void
 }
 
 const SiteContext = createContext<SiteContextValue | null>(null)
@@ -43,9 +48,10 @@ function readTheme(): Theme {
 }
 
 export function SiteProvider({ children }: { children: ReactNode }) {
-  // Default language = English when localStorage is unset
   const [lang, setLangState] = useState<Lang>(readLang)
   const [theme, setThemeState] = useState<Theme>(readTheme)
+  const [loaderVisible, setLoaderVisible] = useState(false)
+  const loaderTimer = useRef<number | null>(null)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -65,12 +71,47 @@ export function SiteProvider({ children }: { children: ReactNode }) {
     }
   }, [lang])
 
+  useEffect(
+    () => () => {
+      if (loaderTimer.current) window.clearTimeout(loaderTimer.current)
+    },
+    [],
+  )
+
   const setLang = useCallback((next: Lang) => setLangState(next), [])
   const setTheme = useCallback((next: Theme) => setThemeState(next), [])
 
+  const runWithLogoLoader = useCallback((action: () => void) => {
+    if (loaderTimer.current) window.clearTimeout(loaderTimer.current)
+    setLoaderVisible(true)
+    const reduce =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    // Navigate quickly so the destination mounts under the overlay
+    window.setTimeout(() => {
+      action()
+    }, reduce ? 40 : 90)
+    // Hide after draw + brief hold (~1.5–1.8s total)
+    loaderTimer.current = window.setTimeout(
+      () => {
+        setLoaderVisible(false)
+        loaderTimer.current = null
+      },
+      reduce ? 280 : 1520,
+    )
+  }, [])
+
   const value = useMemo(
-    () => ({ lang, theme, t: copy[lang], setLang, setTheme }),
-    [lang, theme, setLang, setTheme],
+    () => ({
+      lang,
+      theme,
+      t: copy[lang],
+      setLang,
+      setTheme,
+      loaderVisible,
+      runWithLogoLoader,
+    }),
+    [lang, theme, setLang, setTheme, loaderVisible, runWithLogoLoader],
   )
 
   return <SiteContext.Provider value={value}>{children}</SiteContext.Provider>

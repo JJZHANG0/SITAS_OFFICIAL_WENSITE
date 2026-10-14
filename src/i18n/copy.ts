@@ -84,6 +84,15 @@ export type Copy = {
   principles: [string, string, string]
   footerTag: string
   copyright: string
+  ctaPrimary: string
+  ctaTalk: string
+  ctaPilot: string
+  ctaDownload: string
+  ctaSeeProduct: string
+  ctaSeeVerify: string
+  ctaSeeDev: string
+  ctaSeePartner: string
+  ctaSeeIntroduce: string
 }
 
 export const copy: Record<Lang, Copy> = {
@@ -103,7 +112,7 @@ export const copy: Record<Lang, Copy> = {
     enter: 'Enter',
 
     introKicker: 'What is SITAS',
-    introTitle: 'Evidence that carries its own proof.',
+    introTitle: 'Evidence with its own proof.',
     introLead:
       'SITAS is Verisci’s integrity stack for biomedical imaging — hardware at the eyepiece, software for attestation and offline verify.',
     introBody:
@@ -206,7 +215,7 @@ export const copy: Record<Lang, Copy> = {
     caseStudiesLabel: 'Case Studies',
 
     partnerKicker: 'Stronger science, together',
-    partnerTitle: 'Built to connect the research ecosystem.',
+    partnerTitle: 'Built for the research ecosystem.',
     partnerLead:
       'SITAS is most powerful when labs, publishers, and instrument makers share one provenance language — from eyepiece to peer review.',
     partners: [
@@ -230,7 +239,7 @@ export const copy: Record<Lang, Copy> = {
     contactHint: 'partnerships@sitas.bio',
 
     planKicker: 'A clearer future for research',
-    planTitle: 'From one lens to a trusted standard.',
+    planTitle: 'From lens to trusted standard.',
     planLead:
       'We ship in horizons — harden the core, prove it with institutions, then bind trust to hardware and interoperability.',
     plans: [
@@ -263,9 +272,9 @@ export const copy: Record<Lang, Copy> = {
     companyBody:
       'From acquisition to publication, Verisci protects biomedical image provenance with capture-time attestation and detached cryptographic proof — originals remain bit-for-bit intact.',
     aboutKicker: 'Driven by belief. United by purpose.',
-    aboutTitle: 'Scientific images should carry their own proof.',
+    aboutTitle: 'Images that carry their own proof.',
     aboutBody:
-      'Verisci builds SITAS at the intersection of biomedical imaging, cryptographic provenance, and research integrity — a product company, not a slide deck.',
+      'Verisci builds SITAS where biomedical imaging meets cryptographic provenance — a product company, not a slide deck.',
     aboutTeamTitle: 'The team',
     aboutTeamBody:
       'Engineers, imaging scientists, and integrity advocates. We ship hardware-aware software, speak ALCOA+ fluently, and treat every pixel as potential evidence.',
@@ -276,12 +285,21 @@ export const copy: Record<Lang, Copy> = {
     ],
     promise: 'Our promise',
     promiseBody:
-      'We will never rewrite your science to prove it. Proof lives beside the file — detached, auditable, and ready for offline verify.',
+      'We never rewrite your science to prove it. Proof lives beside the file — detached, auditable, offline-ready.',
     footer: 'Proof Behind Every Pixel.',
     scroll: 'Scroll to explore',
     principles: ['Integrity', 'Precision', 'Transparency'],
     footerTag: 'Integrity / Precision / A better tomorrow',
     copyright: '© 2026 Verisci. All rights reserved.',
+    ctaPrimary: 'Talk to us',
+    ctaTalk: 'Talk to us',
+    ctaPilot: 'Request a pilot',
+    ctaDownload: 'Download overview',
+    ctaSeeProduct: 'See Product',
+    ctaSeeVerify: 'See Verify',
+    ctaSeeDev: 'Development Plan',
+    ctaSeePartner: 'Partnership',
+    ctaSeeIntroduce: 'What is SITAS',
   },
   zh: {
     nav: ['产品介绍', '核心功能', '合作伙伴', '发展计划', '关于我们'],
@@ -299,7 +317,7 @@ export const copy: Record<Lang, Copy> = {
     enter: '进入',
 
     introKicker: '认识 SITAS',
-    introTitle: '让每一帧科研图像，都能自证可信。',
+    introTitle: '让科研图像自证可信。',
     introLead:
       'SITAS 是 Verisci 面向生物医学成像的完整性方案——目镜端硬件，存证与离线核验软件。',
     introBody:
@@ -389,7 +407,7 @@ export const copy: Record<Lang, Copy> = {
     caseStudiesLabel: '案例研究',
 
     partnerKicker: '携手守护科研可信',
-    partnerTitle: '连接更完整的科研生态。',
+    partnerTitle: '连接完整科研生态。',
     partnerLead:
       '当实验室、出版方与仪器厂商共享同一套溯源语言，SITAS 的价值从目镜延伸到同行评议。',
     partners: [
@@ -413,7 +431,7 @@ export const copy: Record<Lang, Copy> = {
     contactHint: 'partnerships@sitas.bio',
 
     planKicker: '更清晰可信的科研未来',
-    planTitle: '从一枚目镜，到一项可信标准。',
+    planTitle: '从目镜到可信标准。',
     planLead: '分阶段推进——夯实核心、与机构验证，再将信任绑定到硬件与互操作标准。',
     plans: [
       [
@@ -445,7 +463,7 @@ export const copy: Record<Lang, Copy> = {
     companyBody:
       '从采集到发表，Verisci 以采集时存证与分离式密码学证明，守护生物医学图像来源——原始文件始终保持逐字节完整。',
     aboutKicker: '因信念而行动，因使命而同行',
-    aboutTitle: '科研图像，应当自带可信证明。',
+    aboutTitle: '科研图像应自带证明。',
     aboutBody:
       'Verisci 在生物医学成像、密码学溯源与科研诚信的交汇处打造 SITAS——是产品公司，不是演示文稿。',
     aboutTeamTitle: '团队',
@@ -464,5 +482,14 @@ export const copy: Record<Lang, Copy> = {
     principles: ['诚信', '精准', '透明'],
     footerTag: '诚信 / 精准 / 更可信的明天',
     copyright: '© 2026 Verisci. 保留所有权利。',
+    ctaPrimary: '联系我们',
+    ctaTalk: '联系我们',
+    ctaPilot: '申请试点',
+    ctaDownload: '下载概览',
+    ctaSeeProduct: '查看产品',
+    ctaSeeVerify: '查看核验',
+    ctaSeeDev: '发展计划',
+    ctaSeePartner: '合作伙伴',
+    ctaSeeIntroduce: '认识 SITAS',
   },
 }

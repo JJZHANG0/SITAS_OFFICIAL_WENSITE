@@ -1282,3 +1282,658 @@ html, body, #root {
     font-size: clamp(34px, 10vw, 48px);
   }
 }
+
+/* ============================================================
+   MAJOR POLISH — pure B/W theme, type system, headlines, loader
+   ============================================================ */
+
+:root {
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --bg: #000000;
+  --surface: #050505;
+  --surface2: #0a0a0a;
+  --text: #ffffff;
+  --muted: #a3a3a3;
+  --line: rgba(255, 255, 255, 0.14);
+  --paper: #0a0a0a;
+  --paperText: #ffffff;
+  --header: rgba(0, 0, 0, 0.82);
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg: #ffffff;
+  --surface: #fafafa;
+  --surface2: #f4f4f4;
+  --text: #000000;
+  --muted: #525252;
+  --line: rgba(0, 0, 0, 0.12);
+  --paper: #f7f7f7;
+  --paperText: #000000;
+  --header: rgba(255, 255, 255, 0.88);
+  color-scheme: light;
+}
+
+html,
+body,
+.site {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
+
+.site[data-lang="zh"] {
+  font-family: var(--font-sans), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+/* Kill Canela / Georgia / Songti stacks — one technical system */
+.hero-copy h1,
+.home-brand h1,
+.site[data-lang="zh"] h1,
+.site[data-lang="zh"] h2,
+.site[data-lang="zh"] .company-title h2,
+.site[data-lang="zh"] .final-slide h2,
+.final-slide h2,
+.company-title h2,
+.page-deep .page-hero h2,
+.intro-grid h2,
+.product-heading h2,
+.cases h2,
+.partnership h2,
+.development h2,
+.about h2 {
+  font-family: var(--font-sans) !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+}
+
+.home-brand h1 em,
+.hero-copy h1 em {
+  font-style: normal !important;
+  font-weight: 500;
+}
+
+.eyebrow,
+.deep-card-label,
+.pillar-idx,
+.pillar-tech,
+.timeline-when,
+.page-no,
+.logo-word,
+.contact-hint,
+.microcopy,
+.principles,
+.footer-line,
+.arc-item,
+.metric-card span,
+.verify-steps span,
+.flow-step b,
+.feature-list b,
+.partner-grid span,
+.pixel-magnifier-rgb,
+code,
+.timeline-meta code {
+  font-family: var(--font-mono);
+}
+
+.eyebrow,
+.deep-card-label {
+  letter-spacing: 0.22em;
+  font-size: 10px;
+  font-weight: 400;
+}
+
+/* Pure theme surfaces — no muddy gray pages */
+.introduce,
+.introduce.page-deep,
+.partnership,
+.partnership.page-deep,
+.development,
+.development.page-deep,
+.company,
+.about,
+.about.page-deep,
+.cases,
+.cases.page-deep,
+.final-slide,
+.slide {
+  background: var(--bg);
+}
+
+.product-section,
+.product-section.page-deep {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.product-section.page-deep .page-no,
+.product-section.page-deep .eyebrow,
+.product-section.page-deep .page-lead,
+.product-section.page-deep .deep-card-label,
+.product-section.page-deep .deep-card p,
+.product-section.page-deep .flow-step p {
+  color: var(--muted);
+}
+
+.product-section.page-deep .page-hero h2,
+.product-section.page-deep .page-hero h1,
+.product-section.page-deep .flow-step h3,
+.product-section.page-deep .feature-list h3 {
+  color: var(--text);
+}
+
+.product-section.page-deep .deep-card {
+  background: color-mix(in srgb, var(--text) 3%, transparent);
+  border-color: var(--line);
+}
+
+.product-section.page-deep .flow-rail {
+  border-top-color: var(--line);
+}
+
+.product-section.page-deep .flow-step {
+  border-right-color: var(--line);
+}
+
+:root[data-theme="light"] .introduce,
+:root[data-theme="light"] .product-section,
+:root[data-theme="light"] .cases,
+:root[data-theme="light"] .partnership,
+:root[data-theme="light"] .development,
+:root[data-theme="light"] .company,
+:root[data-theme="light"] .about,
+:root[data-theme="light"] .final-slide {
+  background: var(--bg);
+}
+
+.site-header {
+  background: linear-gradient(var(--header), transparent);
+  border-bottom: 1px solid var(--line);
+}
+
+:root[data-theme="light"] .site-header {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid var(--line);
+  box-shadow: none;
+}
+
+.deep-card {
+  background: var(--surface);
+  border-color: var(--line);
+}
+
+.deep-card--accent {
+  background: var(--surface2);
+  border-color: color-mix(in srgb, var(--text) 22%, var(--line));
+}
+
+.home-immersive {
+  --home-bg: #000000;
+  --home-text: #ffffff;
+  --home-muted: #a3a3a3;
+  --home-line: rgba(255, 255, 255, 0.14);
+}
+
+.home-immersive[data-theme="light"] {
+  --home-bg: #ffffff;
+  --home-text: #000000;
+  --home-muted: #525252;
+  --home-line: rgba(0, 0, 0, 0.12);
+}
+
+.home-immersive[data-lang="zh"] h1 {
+  font-family: var(--font-sans), "PingFang SC", "Microsoft YaHei", sans-serif !important;
+}
+
+.home-brand h1 {
+  font-family: var(--font-sans) !important;
+  font-style: normal !important;
+  color: var(--home-muted);
+  white-space: nowrap;
+  font-size: clamp(18px, 2.6vw, 42px);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.home-brand h1 em {
+  color: var(--home-text);
+}
+
+.final-slide {
+  background: #000000 !important;
+  color: #ffffff;
+}
+
+:root[data-theme="light"] .final-slide {
+  background: #ffffff !important;
+  color: #000000;
+}
+
+.about {
+  background: radial-gradient(circle at 50% 115%, color-mix(in srgb, var(--text) 8%, transparent), transparent 42%),
+    var(--bg);
+}
+
+.company {
+  background: radial-gradient(circle at 82% 48%, color-mix(in srgb, var(--text) 6%, transparent), transparent 25%),
+    var(--bg);
+}
+
+/* ---- One-line headlines ---- */
+.headline-oneline,
+.page-deep .page-hero h1,
+.page-deep .page-hero h2,
+.company-title h1,
+.company-title h2,
+.about-inner h1,
+.about-inner h2,
+.final-slide h1,
+.final-slide h2 {
+  white-space: nowrap;
+  font-size: clamp(22px, 4.2vw, 68px);
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: clip;
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
+
+.page-deep .page-hero h2 {
+  /* legacy class still used in some places */
+  white-space: nowrap;
+}
+
+.site[data-lang="zh"] .headline-oneline,
+.site[data-lang="zh"] .page-deep .page-hero h1,
+.site[data-lang="zh"] .final-slide h1 {
+  letter-spacing: -0.02em;
+  font-size: clamp(20px, 3.8vw, 56px);
+}
+
+@media (max-width: 650px) {
+  .headline-oneline,
+  .page-deep .page-hero h1,
+  .page-deep .page-hero h2,
+  .final-slide h1,
+  .final-slide h2,
+  .company-title h1 {
+    font-size: clamp(16px, 5.5vw, 32px);
+  }
+  .home-brand h1 {
+    font-size: clamp(14px, 4.2vw, 24px);
+  }
+}
+
+/* Hero row: copy + visual */
+.page-hero-row {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(20px, 4vw, 48px);
+  align-items: start;
+  margin-bottom: clamp(36px, 6vh, 64px);
+  position: relative;
+  z-index: 2;
+}
+
+.page-hero-row .page-hero {
+  margin-bottom: 0;
+}
+
+.page-hero-visual {
+  min-width: 0;
+}
+
+.flow-visual {
+  margin-top: clamp(20px, 3vh, 36px);
+}
+
+.company-visual {
+  margin-top: 24px;
+}
+
+@media (max-width: 1000px) {
+  .page-hero-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Visual placeholder slots */
+.visual-slot {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  border: 1px dashed color-mix(in srgb, var(--text) 28%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--text) 4%, transparent) 25%, transparent 25%) -8px 0 / 16px 16px,
+    color-mix(in srgb, var(--surface) 90%, transparent);
+  color: var(--muted);
+  min-height: 160px;
+  padding: 24px 16px;
+}
+
+.visual-slot--wide {
+  aspect-ratio: 16 / 9;
+  min-height: 140px;
+}
+
+.visual-slot--square {
+  aspect-ratio: 1;
+  min-height: 180px;
+  max-height: 320px;
+}
+
+.visual-slot--tall {
+  aspect-ratio: 3 / 4;
+  min-height: 200px;
+}
+
+.visual-slot__label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-align: center;
+}
+
+.visual-slot__hint {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  opacity: 0.55;
+}
+
+.product-section .visual-slot {
+  border-color: color-mix(in srgb, var(--text) 22%, transparent);
+}
+
+/* Page CTAs */
+.page-cta-wrap,
+.about-cta-block {
+  position: relative;
+  z-index: 2;
+  margin-top: clamp(40px, 7vh, 72px);
+}
+
+.about-cta-block {
+  border-top: 1px solid var(--line);
+  padding-top: clamp(28px, 4vh, 40px);
+  max-width: 720px;
+}
+
+.about-cta-lead {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.65;
+  margin: 0 0 24px;
+  max-width: 560px;
+}
+
+.page-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 20px;
+}
+
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  cursor: pointer;
+}
+
+.cta-btn--primary {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
+.cta-btn--primary:hover {
+  opacity: 0.9;
+}
+
+.cta-btn--ghost {
+  background: transparent;
+  color: var(--muted);
+}
+
+.cta-btn--ghost:hover {
+  color: var(--text);
+  border-color: var(--text);
+}
+
+.final-cta {
+  justify-content: center;
+  margin: 28px 0 36px;
+}
+
+.final-slide .logo {
+  margin-top: 8px;
+}
+
+.partner-cta {
+  /* kept for compatibility; pages now use PageCta */
+}
+
+/* Shorter lead / less text-wall */
+.page-lead {
+  margin-top: 18px;
+  max-width: 560px;
+  font-size: clamp(14px, 1.15vw, 17px);
+  line-height: 1.55;
+}
+
+.intro-copy > p {
+  margin: 0 0 28px;
+  font-size: clamp(14px, 1.2vw, 17px);
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 520px;
+}
+
+.promise-body {
+  margin: 0 auto 28px;
+  max-width: 480px;
+  font-size: 14px;
+}
+
+/* ---- Logo stroke loader ---- */
+.logo-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: #000000;
+  color: #ffffff;
+  opacity: 1;
+  transition: opacity 0.28s ease;
+  pointer-events: all;
+}
+
+:root[data-theme="light"] .logo-loader {
+  background: #ffffff;
+  color: #000000;
+}
+
+.logo-loader--out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.logo-loader__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+.logo-loader__mark {
+  width: min(28vw, 148px);
+  height: auto;
+  color: currentColor;
+}
+
+.logo-loader__word {
+  font-family: var(--font-mono);
+  letter-spacing: 0.46em;
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0;
+  animation: logo-word-in 0.5s ease 0.85s forwards;
+}
+
+.logo-mark__path {
+  fill: none;
+}
+
+.logo-mark--draw .logo-mark__path {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: logo-stroke-draw 1.15s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.logo-mark--draw .logo-mark__outer {
+  animation-delay: 0.05s;
+}
+
+.logo-mark--draw .logo-mark__inner {
+  animation-delay: 0.28s;
+}
+
+.logo-mark--draw .logo-mark__blades .logo-mark__path {
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  animation: logo-stroke-draw 0.7s ease forwards;
+}
+
+.logo-mark--draw .logo-mark__blades .logo-mark__path:nth-child(1) { animation-delay: 0.35s; }
+.logo-mark--draw .logo-mark__blades .logo-mark__path:nth-child(2) { animation-delay: 0.42s; }
+.logo-mark--draw .logo-mark__blades .logo-mark__path:nth-child(3) { animation-delay: 0.49s; }
+.logo-mark--draw .logo-mark__blades .logo-mark__path:nth-child(4) { animation-delay: 0.56s; }
+.logo-mark--draw .logo-mark__blades .logo-mark__path:nth-child(5) { animation-delay: 0.63s; }
+.logo-mark--draw .logo-mark__blades .logo-mark__path:nth-child(6) { animation-delay: 0.7s; }
+
+.logo-mark--draw .logo-mark__leaves .logo-mark__path {
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+  animation: logo-stroke-draw 0.65s ease forwards;
+}
+
+.logo-mark--draw .logo-mark__leaves .logo-mark__path:nth-child(1) { animation-delay: 0.55s; }
+.logo-mark--draw .logo-mark__leaves .logo-mark__path:nth-child(2) { animation-delay: 0.62s; }
+.logo-mark--draw .logo-mark__leaves .logo-mark__path:nth-child(3) { animation-delay: 0.69s; }
+.logo-mark--draw .logo-mark__leaves .logo-mark__path:nth-child(4) { animation-delay: 0.76s; }
+.logo-mark--draw .logo-mark__leaves .logo-mark__path:nth-child(5) { animation-delay: 0.83s; }
+.logo-mark--draw .logo-mark__leaves .logo-mark__path:nth-child(6) { animation-delay: 0.9s; }
+
+@keyframes logo-stroke-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes logo-word-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-mark--draw .logo-mark__path {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+  .logo-loader__word {
+    opacity: 1;
+    animation: none;
+  }
+  .logo-loader {
+    transition: none;
+  }
+}
+
+/* Result card stays readable on pure black */
+.result-card {
+  background: rgba(10, 10, 10, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #f5f5f5;
+}
+
+:root[data-theme="light"] .result-card {
+  background: rgba(0, 0, 0, 0.82);
+  color: #fafafa;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.metric-card {
+  background: var(--surface);
+}
+
+.feature-list article {
+  border-top-color: var(--line);
+}
+
+.outline-button {
+  border-color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+/* Device model on dark product surface */
+.product-section .device-model {
+  background: linear-gradient(145deg, #e8e8e8, #bdbdbd 60%, #8a8a8a);
+}
+
+:root[data-theme="light"] .product-section .device-model {
+  background: linear-gradient(145deg, #fff, #d8d8d3 60%, #aaa);
+}
+
+.company-title .headline-oneline {
+  font-size: clamp(40px, 8vw, 120px);
+  white-space: nowrap;
+}
+
+.about-inner .headline-oneline {
+  font-size: clamp(22px, 4vw, 56px);
+}
+
+.final-slide .headline-oneline {
+  font-size: clamp(28px, 5.5vw, 88px);
+  margin: 0 0 28px;
+}
+
+.page-cta .contact-hint {
+  margin-left: 4px;
+}
+
+/* Ensure product page features readable on pure surfaces */
+.product-section .feature-list h3,
+.product-section .feature-list p {
+  color: var(--text);
+}
+
+.product-section .feature-list p {
+  opacity: 0.65;
+}

@@ -1,5 +1,7 @@
 import { TechRaster } from '../components/TechRaster'
 import { Reveal } from '../components/Reveal'
+import { VisualSlot } from '../components/VisualSlot'
+import { PageCta } from '../components/PageCta'
 import { useSite } from '../context/SiteContext'
 
 export function ProductPage() {
@@ -10,11 +12,16 @@ export function ProductPage() {
     <section className="slide page-deep product-section visible" id="product">
       <div className="page-no">02 / PRODUCT</div>
 
-      <Reveal className="product-heading page-hero">
-        <p className="eyebrow">{t.productKicker}</p>
-        <h2>{t.productTitle}</h2>
-        <p className="page-lead">{t.productLead}</p>
-      </Reveal>
+      <div className="page-hero-row">
+        <Reveal className="product-heading page-hero">
+          <p className="eyebrow">{t.productKicker}</p>
+          <h1 className="headline-oneline">{t.productTitle}</h1>
+          <p className="page-lead">{t.productLead}</p>
+        </Reveal>
+        <Reveal className="page-hero-visual" delay={80}>
+          <VisualSlot label="VISUAL / DEVICE SILHOUETTE" ratio="square" />
+        </Reveal>
+      </div>
 
       <Reveal className="flow-block" delay={60}>
         <p className="eyebrow">{t.productFlowTitle}</p>
@@ -26,6 +33,9 @@ export function ProductPage() {
               <p>{body}</p>
             </article>
           ))}
+        </div>
+        <div className="flow-visual">
+          <VisualSlot label="VISUAL / CAPTURE → ATTEST → VERIFY" ratio="wide" />
         </div>
       </Reveal>
 
@@ -67,6 +77,13 @@ export function ProductPage() {
           <p>{t.productSecureBody}</p>
         </Reveal>
       </div>
+
+      <Reveal className="page-cta-wrap" delay={120}>
+        <PageCta
+          secondary={{ to: '/cases', label: t.ctaSeeVerify }}
+          tertiary={{ to: '/partnership', label: t.ctaSeePartner }}
+        />
+      </Reveal>
 
       <TechRaster />
     </section>

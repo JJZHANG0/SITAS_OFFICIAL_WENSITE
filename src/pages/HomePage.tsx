@@ -5,7 +5,7 @@ import { PixelMagnifier } from '../components/PixelMagnifier'
 import { useSite } from '../context/SiteContext'
 
 export function HomePage() {
-  const { t, lang, theme, setLang, setTheme } = useSite()
+  const { t, lang, theme, setLang, setTheme, runWithLogoLoader } = useSite()
   const navigate = useNavigate()
   const [leaving, setLeaving] = useState(false)
   const sampleRef = useRef<HTMLElement>(null)
@@ -32,11 +32,11 @@ export function HomePage() {
     (item: ArcDestination) => {
       if (leaving) return
       setLeaving(true)
-      window.setTimeout(() => {
+      runWithLogoLoader(() => {
         navigate(item.path)
-      }, 780)
+      })
     },
-    [leaving, navigate],
+    [leaving, navigate, runWithLogoLoader],
   )
 
   return (
@@ -51,9 +51,8 @@ export function HomePage() {
         <PixelMagnifier sampleTargetRef={sampleRef} imageSrc={heroSrc} />
         <div className="home-brand">
           <p className="eyebrow">{t.heroKicker}</p>
-          <h1>
-            {t.heroA}
-            <br />
+          <h1 className="headline-oneline">
+            <span className="headline-line">{t.heroA}</span>{' '}
             <em>{t.heroB}</em>
           </h1>
         </div>

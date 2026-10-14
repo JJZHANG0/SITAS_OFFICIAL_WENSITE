@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { SiteProvider } from './context/SiteContext'
 import { Layout } from './components/Layout'
+import { LogoLoader } from './components/LogoLoader'
 import { HomePage } from './pages/HomePage'
 import { IntroducePage } from './pages/IntroducePage'
 import { ProductPage } from './pages/ProductPage'
@@ -13,6 +14,7 @@ export default function App() {
   return (
     <SiteProvider>
       <BrowserRouter basename="/SITAS_OFFICIAL_WENSITE">
+        <LogoLoader />
         <Routes>
           <Route index element={<HomePage />} />
           <Route element={<Layout />}>

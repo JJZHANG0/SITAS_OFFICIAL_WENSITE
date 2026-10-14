@@ -1,5 +1,7 @@
 import { TechRaster } from '../components/TechRaster'
 import { Reveal } from '../components/Reveal'
+import { VisualSlot } from '../components/VisualSlot'
+import { PageCta } from '../components/PageCta'
 import { useSite } from '../context/SiteContext'
 
 export function CasesPage() {
@@ -8,11 +10,16 @@ export function CasesPage() {
     <section className="slide page-deep cases visible" id="cases">
       <div className="page-no">03 / CASE STUDIES</div>
 
-      <Reveal className="cases-copy page-hero">
-        <p className="eyebrow">{t.caseKicker}</p>
-        <h2>{t.caseTitle}</h2>
-        <p className="page-lead">{t.caseLead}</p>
-      </Reveal>
+      <div className="page-hero-row">
+        <Reveal className="cases-copy page-hero">
+          <p className="eyebrow">{t.caseKicker}</p>
+          <h1 className="headline-oneline">{t.caseTitle}</h1>
+          <p className="page-lead">{t.caseLead}</p>
+        </Reveal>
+        <Reveal className="page-hero-visual" delay={80}>
+          <VisualSlot label="VISUAL / VERIFY UI" ratio="wide" />
+        </Reveal>
+      </div>
 
       <div className="cases-stage">
         <Reveal className="comparison" delay={80}>
@@ -39,6 +46,7 @@ export function CasesPage() {
               <i style={{ width: '62%' }} />
             </div>
           </div>
+          <VisualSlot label="VISUAL / CONTINUITY MAP" ratio="wide" />
         </Reveal>
       </div>
 
@@ -59,6 +67,13 @@ export function CasesPage() {
           </ol>
         </Reveal>
       </div>
+
+      <Reveal className="page-cta-wrap" delay={120}>
+        <PageCta
+          secondary={{ to: '/product', label: t.ctaSeeProduct }}
+          tertiary={{ to: '/development', label: t.ctaSeeDev }}
+        />
+      </Reveal>
 
       <TechRaster />
     </section>
