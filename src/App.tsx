@@ -13,7 +13,7 @@ import { AboutPage } from './pages/AboutPage'
 export default function App() {
   return (
     <SiteProvider>
-      <BrowserRouter basename="/SITAS_OFFICIAL_WENSITE">
+      <BrowserRouter basename="/">
         <LogoLoader />
         <Routes>
           <Route index element={<HomePage />} />
