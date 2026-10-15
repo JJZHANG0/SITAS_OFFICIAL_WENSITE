@@ -9,6 +9,7 @@ import { CasesPage } from './pages/CasesPage'
 import { PartnershipPage } from './pages/PartnershipPage'
 import { DevelopmentPage } from './pages/DevelopmentPage'
 import { AboutPage } from './pages/AboutPage'
+import { VerifyPage } from './pages/VerifyPage'
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
             <Route path="introduce" element={<IntroducePage />} />
             <Route path="product" element={<ProductPage />} />
             <Route path="cases" element={<CasesPage />} />
+            <Route path="verify" element={<VerifyPage />} />
             <Route path="partnership" element={<PartnershipPage />} />
             <Route path="development" element={<DevelopmentPage />} />
             <Route path="about" element={<AboutPage />} />

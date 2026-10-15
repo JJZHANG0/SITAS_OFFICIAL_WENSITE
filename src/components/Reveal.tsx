@@ -14,8 +14,8 @@ type Props = {
 }
 
 /**
- * IntersectionObserver entrance reveal — performant, respects reduced motion.
- * Above-the-fold nodes enter immediately (no blank flash).
+ * Light IntersectionObserver entrance — no scroll-jacking.
+ * Soft motion; above-the-fold enters immediately.
  */
 export function Reveal({
   children,
@@ -37,10 +37,10 @@ export function Reveal({
 
     const rect = el.getBoundingClientRect()
     const vh = window.innerHeight || document.documentElement.clientHeight
-    if (rect.top < vh * 0.92 && rect.bottom > vh * 0.02) {
-      // Stagger via CSS --reveal-delay still applies once class is set
+    // Generous viewport check so content is rarely "stuck" invisible mid-scroll
+    if (rect.top < vh * 0.98 && rect.bottom > 0) {
       if (delay > 0) {
-        const id = window.setTimeout(revealNow, delay)
+        const id = window.setTimeout(revealNow, Math.min(delay, 120))
         return () => window.clearTimeout(id)
       }
       revealNow()
@@ -51,12 +51,17 @@ export function Reveal({
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            revealNow()
+            if (delay > 0) {
+              window.setTimeout(revealNow, Math.min(delay, 120))
+            } else {
+              revealNow()
+            }
             io.unobserve(el)
           }
         }
       },
-      { threshold: 0.12, rootMargin: '0px 0px -6% 0px' },
+      // Early trigger; no negative rootMargin that delays visibility
+      { threshold: 0.01, rootMargin: '48px 0px 48px 0px' },
     )
     io.observe(el)
     return () => io.disconnect()
@@ -66,7 +71,11 @@ export function Reveal({
     <Tag
       ref={ref as never}
       className={`reveal${className ? ` ${className}` : ''}`}
-      style={delay ? ({ '--reveal-delay': `${delay}ms` } as CSSProperties) : undefined}
+      style={
+        delay
+          ? ({ '--reveal-delay': `${Math.min(delay, 120)}ms` } as CSSProperties)
+          : undefined
+      }
     >
       {children}
     </Tag>

@@ -3,6 +3,7 @@ export type Lang = 'en' | 'zh'
 export type Copy = {
   nav: [string, string, string, string, string]
   navHome: [string, string, string, string, string, string]
+  navVerify: string
   language: string
   mode: string
   light: string
@@ -93,6 +94,65 @@ export type Copy = {
   ctaSeeDev: string
   ctaSeePartner: string
   ctaSeeIntroduce: string
+  ctaVerifyImage: string
+  ctaLearnBasic: string
+  ctaLearnPro: string
+  ctaLearnApp: string
+  modulesKicker: string
+  moduleBasic: {
+    kicker: string
+    title: string
+    body: string
+    meta: string
+    visual: string
+  }
+  modulePro: {
+    kicker: string
+    title: string
+    body: string
+    meta: string
+    visual: string
+  }
+  moduleApp: {
+    kicker: string
+    title: string
+    body: string
+    meta: string
+    visual: string
+  }
+  verifyKicker: string
+  verifyTitle: string
+  verifyLead: string
+  verifyImageTitle: string
+  verifyImageHint: string
+  verifyImageDrop: string
+  verifyImageSub: string
+  verifyManifestTitle: string
+  verifyManifestHint: string
+  verifyManifestDrop: string
+  verifyManifestSub: string
+  verifyClear: string
+  verifyRun: string
+  verifyRunning: string
+  verifyNeedImage: string
+  verifyStatusAttested: string
+  verifyStatusNotAttested: string
+  verifyStatusMismatch: string
+  verifyStatusDemo: string
+  verifyMsgAttested: string
+  verifyMsgNotAttested: string
+  verifyMsgMismatch: string
+  verifyHashLabel: string
+  verifyManifestHashLabel: string
+  verifySignerLabel: string
+  verifyTimeLabel: string
+  verifyAlgoLabel: string
+  verifyFileLabel: string
+  verifyDownloadCert: string
+  verifyDemoNote: string
+  verifyCtaLearn: string
+  verifyCertTitle: string
+  verifyCertFooter: string
 }
 
 export const copy: Record<Lang, Copy> = {
@@ -300,6 +360,71 @@ export const copy: Record<Lang, Copy> = {
     ctaSeeDev: 'Development Plan',
     ctaSeePartner: 'Partnership',
     ctaSeeIntroduce: 'What is SITAS',
+    navVerify: 'Image Verify',
+    ctaVerifyImage: 'Verify an image',
+    ctaLearnBasic: 'Explore BASIC',
+    ctaLearnPro: 'Explore PRO',
+    ctaLearnApp: 'Explore Companion',
+    modulesKicker: 'Product lineup',
+    moduleBasic: {
+      kicker: '01 / Hardware',
+      title: 'SITAS BASIC',
+      body: 'Entry encrypted eyepiece path. Capture-time detached manifest — SHA-256 integrity, ECDSA P-256 signature — without rewriting a single scientific pixel.',
+      meta: 'Eyepiece path · Detached manifest · Offline-ready verify',
+      visual: 'VISUAL / SITAS BASIC',
+    },
+    modulePro: {
+      kicker: '02 / Hardware+',
+      title: 'SITAS PRO',
+      body: 'Higher-tier capture path for demanding labs. Same cryptographic model, richer capture context, and a clear path to hardware-bound keys.',
+      meta: 'Extended context · TSA-ready · Secure-element roadmap',
+      visual: 'VISUAL / SITAS PRO',
+    },
+    moduleApp: {
+      kicker: '03 / Software',
+      title: 'Companion App',
+      body: 'Desktop attestation and offline verification. Load image + .sitas manifest, recompute hash, inspect signatures and block fingerprints, export an audit trail.',
+      meta: 'Attest · Verify · Continuity map · Certificate export',
+      visual: 'VISUAL / COMPANION APP',
+    },
+    verifyKicker: 'Attestation check',
+    verifyTitle: 'Image verification.',
+    verifyLead:
+      'Upload a research image and, if you have one, its detached SITAS manifest. We hash the file in your browser and compare it to the sidecar — a preview of offline verify.',
+    verifyImageTitle: 'Image',
+    verifyImageHint: 'Original capture file. We never upload it; hashing stays on this device.',
+    verifyImageDrop: 'Drop image or browse',
+    verifyImageSub: 'PNG · JPEG · TIFF · WebP',
+    verifyManifestTitle: 'Manifest (optional)',
+    verifyManifestHint: 'Detached sidecar (.json / .sitas). Without it we can only report “not SITAS-attested.”',
+    verifyManifestDrop: 'Drop manifest or browse',
+    verifyManifestSub: '.json · .sitas',
+    verifyClear: 'Clear',
+    verifyRun: 'Run verification',
+    verifyRunning: 'Hashing…',
+    verifyNeedImage: 'Add an image to begin.',
+    verifyStatusAttested: 'Attested · hash match',
+    verifyStatusNotAttested: 'Not SITAS-attested',
+    verifyStatusMismatch: 'Manifest present · hash mismatch',
+    verifyStatusDemo: 'Preview / demo verification',
+    verifyMsgAttested:
+      'Content hash matches the detached manifest. Signer and time fields are shown when present. Full ECDSA / TSA validation belongs in the Companion App — this page is an honest browser preview.',
+    verifyMsgNotAttested:
+      'No usable SITAS manifest was provided, or it could not be parsed. That does not mean the image is forged — only that this browser session cannot attest it. Capture-time attestation starts with SITAS hardware.',
+    verifyMsgMismatch:
+      'A manifest was found, but its content hash does not match this file. The image may have been edited after attestation, or the wrong sidecar was paired.',
+    verifyHashLabel: 'Image SHA-256',
+    verifyManifestHashLabel: 'Manifest content hash',
+    verifySignerLabel: 'Signer',
+    verifyTimeLabel: 'Time',
+    verifyAlgoLabel: 'Algorithm',
+    verifyFileLabel: 'File',
+    verifyDownloadCert: 'Download certificate',
+    verifyDemoNote:
+      'Browser preview: SHA-256 via Web Crypto. ECDSA P-256 and RFC 3161 checks are summarized from the manifest when present — cryptographic signature verify runs in the Companion App.',
+    verifyCtaLearn: 'Learn about SITAS',
+    verifyCertTitle: 'SITAS verification certificate',
+    verifyCertFooter: 'Generated client-side by sitas.tech · Preview verification · © Verisci',
   },
   zh: {
     nav: ['产品介绍', '核心功能', '合作伙伴', '发展计划', '关于我们'],
@@ -324,7 +449,7 @@ export const copy: Record<Lang, Copy> = {
       '采集瞬间，SITAS 生成分离的加密存证清单。原始文件一个字节都不改动。之后任何人只需图像与清单，即可证明谁签发、何时签发，以及是否仍逐字节一致。',
     introProblemTitle: '问题',
     introProblemBody:
-      '图像完整性问题——重复、拼接、选择性增强——从实验台到发表不断侵蚀信任。截图与元数据 alone 都无法证明文件仍是采集时的原件。',
+      '图像完整性问题——重复、拼接、选择性增强——从实验台到发表不断侵蚀信任。截图与元数据本身都无法证明文件仍是采集时的原件。',
     introSolutionTitle: '方案',
     introSolutionBody:
       '分离式存证：SHA-256 内容哈希、ECDSA P-256 签名、可选 RFC 3161 可信时间戳，以及用于篡改定位的 32×32 分块指纹——全部独立于像素载荷。',
@@ -491,5 +616,70 @@ export const copy: Record<Lang, Copy> = {
     ctaSeeDev: '发展计划',
     ctaSeePartner: '合作伙伴',
     ctaSeeIntroduce: '认识 SITAS',
+    navVerify: '图片查验',
+    ctaVerifyImage: '查验图片',
+    ctaLearnBasic: '了解 BASIC',
+    ctaLearnPro: '了解 PRO',
+    ctaLearnApp: '了解 Companion',
+    modulesKicker: '产品矩阵',
+    moduleBasic: {
+      kicker: '01 / 硬件',
+      title: 'SITAS BASIC',
+      body: '入门级加密目镜路径。采集瞬间生成分离存证清单——SHA-256 完整性、ECDSA P-256 签名——不改动任何一个科学像素。',
+      meta: '目镜路径 · 分离清单 · 可离线核验',
+      visual: 'VISUAL / SITAS BASIC',
+    },
+    modulePro: {
+      kicker: '02 / 硬件+',
+      title: 'SITAS PRO',
+      body: '面向高要求实验室的进阶采集路径。同一套密码学模型，更丰富的采集上下文，并通向硬件绑定密钥。',
+      meta: '扩展上下文 · TSA 就绪 · 安全元件路线图',
+      visual: 'VISUAL / SITAS PRO',
+    },
+    moduleApp: {
+      kicker: '03 / 软件',
+      title: 'Companion App',
+      body: '桌面端存证与离线核验。加载图像与 .sitas 清单，重算哈希、检查签名与分块指纹，并导出审计轨迹。',
+      meta: '存证 · 核验 · 连续性图 · 证书导出',
+      visual: 'VISUAL / COMPANION APP',
+    },
+    verifyKicker: '存证查验',
+    verifyTitle: '图片查验。',
+    verifyLead:
+      '上传科研图像，以及（如有）分离的 SITAS 存证清单。我们在浏览器内计算哈希并与侧车比对——这是离线核验的预览体验。',
+    verifyImageTitle: '图像',
+    verifyImageHint: '采集原文件。不会上传；哈希仅在本机完成。',
+    verifyImageDrop: '拖放图像或选择文件',
+    verifyImageSub: 'PNG · JPEG · TIFF · WebP',
+    verifyManifestTitle: '存证清单（可选）',
+    verifyManifestHint: '分离侧车（.json / .sitas）。若无清单，我们只能报告“未经 SITAS 存证”。',
+    verifyManifestDrop: '拖放清单或选择文件',
+    verifyManifestSub: '.json · .sitas',
+    verifyClear: '清除',
+    verifyRun: '开始核验',
+    verifyRunning: '计算哈希…',
+    verifyNeedImage: '请先添加图像。',
+    verifyStatusAttested: '已存证 · 哈希一致',
+    verifyStatusNotAttested: '未经 SITAS 存证',
+    verifyStatusMismatch: '有清单 · 哈希不一致',
+    verifyStatusDemo: '预览 / 演示核验',
+    verifyMsgAttested:
+      '内容哈希与分离清单一致。如有签发者与时间字段将一并展示。完整 ECDSA / TSA 校验属于 Companion App——本页为诚实的浏览器预览。',
+    verifyMsgNotAttested:
+      '未提供可用的 SITAS 清单，或无法解析。这并不表示图像被伪造——只是本次浏览器会话无法为其背书。采集时存证从 SITAS 硬件开始。',
+    verifyMsgMismatch:
+      '找到了清单，但其内容哈希与此文件不一致。图像可能在存证后被编辑，或配对了错误的侧车。',
+    verifyHashLabel: '图像 SHA-256',
+    verifyManifestHashLabel: '清单内容哈希',
+    verifySignerLabel: '签发者',
+    verifyTimeLabel: '时间',
+    verifyAlgoLabel: '算法',
+    verifyFileLabel: '文件',
+    verifyDownloadCert: '下载证书',
+    verifyDemoNote:
+      '浏览器预览：经 Web Crypto 计算 SHA-256。ECDSA P-256 与 RFC 3161 字段在清单存在时摘要展示——密码学签名核验请使用 Companion App。',
+    verifyCtaLearn: '了解 SITAS',
+    verifyCertTitle: 'SITAS 核验证书',
+    verifyCertFooter: '由 sitas.tech 客户端生成 · 预览核验 · © Verisci',
   },
 }

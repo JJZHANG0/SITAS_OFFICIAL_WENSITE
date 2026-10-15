@@ -87,6 +87,9 @@ export function Header() {
           <NavLink to="/about" className={({ isActive }) => (isActive ? 'active' : '')}>
             {t.nav[4]}
           </NavLink>
+          <NavLink to="/verify" className={({ isActive }) => (isActive ? 'active' : '')}>
+            {t.navVerify}
+          </NavLink>
         </nav>
         <div className="utilities">
           <div className="utility">
