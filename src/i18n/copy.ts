@@ -1,9 +1,27 @@
 export type Lang = 'en' | 'zh'
 
+export type ProductDetailCopy = {
+  pageNo: string
+  kicker: string
+  title: string
+  lead: string
+  heroVisual: string
+  specsTitle: string
+  specs: [string, string][]
+  howTitle: string
+  howSteps: [string, string][]
+  howVisual: string
+  forTitle: string
+  forItems: [string, string][]
+  ctaLead: string
+}
+
 export type Copy = {
   nav: [string, string, string, string, string]
   navHome: [string, string, string, string, string, string]
   navVerify: string
+  navBasic: string
+  navPro: string
   language: string
   mode: string
   light: string
@@ -155,7 +173,11 @@ export type Copy = {
   verifyCtaLearn: string
   verifyCertTitle: string
   verifyCertFooter: string
+  detailBasic: ProductDetailCopy
+  detailPro: ProductDetailCopy
 }
+
+
 
 export const copy: Record<Lang, Copy> = {
   en: {
@@ -363,6 +385,8 @@ export const copy: Record<Lang, Copy> = {
     ctaSeePartner: 'Partnership',
     ctaSeeIntroduce: 'What is SITAS',
     navVerify: 'Image Verify',
+    navBasic: 'SITAS BASIC',
+    navPro: 'SITAS PRO',
     ctaVerifyImage: 'Verify an image',
     ctaLearnBasic: 'Learn about BASIC',
     ctaLearnPro: 'Learn about PRO',
@@ -429,6 +453,86 @@ export const copy: Record<Lang, Copy> = {
     verifyCtaLearn: 'Learn about SITAS',
     verifyCertTitle: 'SITAS verification certificate',
     verifyCertFooter: 'Generated client-side by sitas.tech · Preview verification · © Verisci',
+    detailBasic: {
+      pageNo: '02 / SITAS BASIC',
+      kicker: 'Entry hardware',
+      title: 'SITAS BASIC',
+      lead:
+        'The entry encrypted eyepiece path. Capture-time detached attestation — SHA-256 integrity and ECDSA P-256 signatures — without rewriting a single scientific pixel.',
+      heroVisual: 'VISUAL / SITAS BASIC · DEVICE',
+      specsTitle: 'Key specs',
+      specs: [
+        ['Integrity', 'SHA-256 content digest at capture'],
+        ['Authenticity', 'ECDSA P-256 detached signature'],
+        ['Manifest', 'Sidecar beside the original file'],
+        ['Verify', 'Offline-ready with Companion App'],
+        ['ALCOA+', 'Supports Original without mutating pixels'],
+        ['Form factor', 'Eyepiece-class capture path'],
+      ],
+      howTitle: 'How it works',
+      howSteps: [
+        [
+          'Capture',
+          'Optical acquisition through the SITAS BASIC path. Pixels remain the scientific record.',
+        ],
+        [
+          'Attest',
+          'A detached manifest binds SHA-256 and signer identity at the moment of capture.',
+        ],
+        [
+          'Verify',
+          'Later, recompute the hash and check the signature offline — image + manifest is enough.',
+        ],
+      ],
+      howVisual: 'VISUAL / BASIC · CAPTURE → ATTEST → VERIFY',
+      forTitle: 'Who it is for',
+      forItems: [
+        ['Research labs', 'Establish capture-time provenance without rewriting acquisition stacks.'],
+        ['Teaching & core facilities', 'A clear entry point into attested imaging workflows.'],
+        ['Microscope partners', 'Eyepiece integration path for OEM pilots and evaluations.'],
+      ],
+      ctaLead: 'Start with BASIC. Prove integrity at the lens — then grow into PRO when you need more.',
+    },
+    detailPro: {
+      pageNo: '02 / SITAS PRO',
+      kicker: 'Higher-tier hardware',
+      title: 'SITAS PRO',
+      lead:
+        'The higher-tier capture path for demanding labs. Same cryptographic model as BASIC, richer capture context, optional RFC 3161 trusted time, and a clear path to hardware-bound keys.',
+      heroVisual: 'VISUAL / SITAS PRO · DEVICE',
+      specsTitle: 'Key specs',
+      specs: [
+        ['Integrity', 'SHA-256 content digest at capture'],
+        ['Authenticity', 'ECDSA P-256 · secure-element roadmap'],
+        ['Trusted time', 'Optional RFC 3161 TSA'],
+        ['Context', 'Richer capture metadata in the manifest'],
+        ['Localization', '32×32 block fingerprints when hashes fail'],
+        ['ALCOA+', 'Policy-ready Original for regulated workflows'],
+      ],
+      howTitle: 'How it works',
+      howSteps: [
+        [
+          'Capture',
+          'Acquisition with extended context written beside — not into — the image.',
+        ],
+        [
+          'Attest',
+          'Detached manifest with SHA-256, ECDSA P-256, optional TSA, and block fingerprints.',
+        ],
+        [
+          'Verify & localize',
+          'Offline verify; when the global hash fails, fingerprints help localize suspect regions.',
+        ],
+      ],
+      howVisual: 'VISUAL / PRO · ATTEST + LOCALIZE',
+      forTitle: 'Who it is for',
+      forItems: [
+        ['Regulated & publication labs', 'ALCOA+ Original with audit-friendly capture-time proof.'],
+        ['Publishers & review desks', 'Machine-checkable manifests alongside image submissions.'],
+        ['Instrument OEMs', 'Path to hardware-bound signing (PKCS#11 / secure element).'],
+      ],
+      ctaLead: 'Choose PRO when provenance must travel from eyepiece to peer review with richer proof.',
+    },
   },
   zh: {
     nav: ['产品介绍', '核心功能', '合作伙伴', '发展计划', '关于我们'],
@@ -621,6 +725,8 @@ export const copy: Record<Lang, Copy> = {
     ctaSeePartner: '合作伙伴',
     ctaSeeIntroduce: '认识 SITAS',
     navVerify: '图片查验',
+    navBasic: 'SITAS BASIC',
+    navPro: 'SITAS PRO',
     ctaVerifyImage: '查验图片',
     ctaLearnBasic: '了解 BASIC',
     ctaLearnPro: '了解 PRO',
@@ -687,5 +793,67 @@ export const copy: Record<Lang, Copy> = {
     verifyCtaLearn: '了解 SITAS',
     verifyCertTitle: 'SITAS 核验证书',
     verifyCertFooter: '由 sitas.tech 客户端生成 · 预览核验 · © Verisci',
+    detailBasic: {
+      pageNo: '02 / SITAS BASIC',
+      kicker: '入门硬件',
+      title: 'SITAS BASIC',
+      lead:
+        '入门级加密目镜路径。采集瞬间完成分离式存证——SHA-256 完整性与 ECDSA P-256 签名——不改动任何一个科学像素。',
+      heroVisual: 'VISUAL / SITAS BASIC · DEVICE',
+      specsTitle: '关键规格',
+      specs: [
+        ['完整性', '采集时 SHA-256 内容摘要'],
+        ['真实性', 'ECDSA P-256 分离签名'],
+        ['清单', '与原文件并列的侧车存证'],
+        ['核验', 'Companion App 可离线核验'],
+        ['ALCOA+', '支持 Original，且不改动像素'],
+        ['形态', '目镜级采集路径'],
+      ],
+      howTitle: '工作方式',
+      howSteps: [
+        ['采集', '经 SITAS BASIC 光路采集。像素仍是科学记录。'],
+        ['存证', '采集瞬间生成分离清单，绑定 SHA-256 与签发者。'],
+        ['核验', '之后重算哈希并检查签名——图像 + 清单即可离线完成。'],
+      ],
+      howVisual: 'VISUAL / BASIC · 采集 → 存证 → 核验',
+      forTitle: '适用对象',
+      forItems: [
+        ['科研实验室', '在不重写采集软件栈的前提下建立采集时溯源。'],
+        ['教学与公共平台', '进入存证成像流程的清晰入门路径。'],
+        ['显微镜伙伴', '面向 OEM 试点与评估的目镜集成路径。'],
+      ],
+      ctaLead: '从 BASIC 开始，在镜头端证明完整性——需要更强能力时再升级到 PRO。',
+    },
+    detailPro: {
+      pageNo: '02 / SITAS PRO',
+      kicker: '进阶硬件',
+      title: 'SITAS PRO',
+      lead:
+        '面向高要求实验室的进阶采集路径。与 BASIC 同一套密码学模型，更丰富的采集上下文，可选 RFC 3161 可信时间，并通向硬件绑定密钥。',
+      heroVisual: 'VISUAL / SITAS PRO · DEVICE',
+      specsTitle: '关键规格',
+      specs: [
+        ['完整性', '采集时 SHA-256 内容摘要'],
+        ['真实性', 'ECDSA P-256 · 安全元件路线图'],
+        ['可信时间', '可选 RFC 3161 TSA'],
+        ['上下文', '清单中更丰富的采集元数据'],
+        ['定位', '哈希失配时 32×32 分块指纹'],
+        ['ALCOA+', '面向监管流程的 Original 支持'],
+      ],
+      howTitle: '工作方式',
+      howSteps: [
+        ['采集', '采集时写入扩展上下文——写在图像旁，而非图像内。'],
+        ['存证', '分离清单含 SHA-256、ECDSA P-256、可选 TSA 与分块指纹。'],
+        ['核验与定位', '离线核验；全局哈希失败时，指纹帮助定位嫌疑区域。'],
+      ],
+      howVisual: 'VISUAL / PRO · 存证 + 定位',
+      forTitle: '适用对象',
+      forItems: [
+        ['监管与发表实验室', '可审计的采集时证明，对齐 ALCOA+ Original。'],
+        ['出版与审稿方', '投稿图像附带可机检清单。'],
+        ['仪器 OEM', '通向硬件绑定签名（PKCS#11 / 安全元件）。'],
+      ],
+      ctaLead: '当溯源需要从目镜走到同行评议，并携带更完整证明时，选择 PRO。',
+    },
   },
 }

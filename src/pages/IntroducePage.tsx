@@ -18,14 +18,14 @@ export function IntroducePage() {
       tone: 'dark' as const,
       flip: false,
       data: t.moduleBasic,
-      actions: [{ href: '/product', label: t.ctaLearnBasic, primary: true, internal: true }],
+      actions: [{ href: '/product/basic', label: t.ctaLearnBasic, primary: true, internal: true }],
     },
     {
       key: 'pro',
       tone: 'light' as const,
       flip: true,
       data: t.modulePro,
-      actions: [{ href: '/product', label: t.ctaLearnPro, primary: true, internal: true }],
+      actions: [{ href: '/product/pro', label: t.ctaLearnPro, primary: true, internal: true }],
     },
     {
       key: 'app',

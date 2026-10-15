@@ -5,6 +5,7 @@ import { LogoLoader } from './components/LogoLoader'
 import { HomePage } from './pages/HomePage'
 import { IntroducePage } from './pages/IntroducePage'
 import { ProductPage } from './pages/ProductPage'
+import { ProductDetailPage } from './pages/ProductDetailPage'
 import { CasesPage } from './pages/CasesPage'
 import { PartnershipPage } from './pages/PartnershipPage'
 import { DevelopmentPage } from './pages/DevelopmentPage'
@@ -21,6 +22,8 @@ export default function App() {
           <Route element={<Layout />}>
             <Route path="introduce" element={<IntroducePage />} />
             <Route path="product" element={<ProductPage />} />
+            <Route path="product/basic" element={<ProductDetailPage tier="basic" />} />
+            <Route path="product/pro" element={<ProductDetailPage tier="pro" />} />
             <Route path="cases" element={<CasesPage />} />
             <Route path="verify" element={<VerifyPage />} />
             <Route path="partnership" element={<PartnershipPage />} />
