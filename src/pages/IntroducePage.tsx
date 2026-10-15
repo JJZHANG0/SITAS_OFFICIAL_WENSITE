@@ -5,8 +5,9 @@ import { VisualSlot } from '../components/VisualSlot'
 import { PageCta } from '../components/PageCta'
 import { useSite } from '../context/SiteContext'
 
-// TODO: replace with real Companion App installer URLs when available
-const COMPANION_MAC_URL = 'mailto:partnerships@sitas.bio?subject=SITAS%20Companion%20for%20Mac'
+// Mac installer: GitHub Release asset — /releases/latest/download/ always points at the newest SITAS.dmg
+const COMPANION_MAC_URL = 'https://github.com/JJZHANG0/SITAS_OFFICIAL_WENSITE/releases/latest/download/SITAS.dmg'
+// TODO: replace with the real Windows installer URL when available
 const COMPANION_WIN_URL = 'mailto:partnerships@sitas.bio?subject=SITAS%20Companion%20for%20Windows'
 
 export function IntroducePage() {
