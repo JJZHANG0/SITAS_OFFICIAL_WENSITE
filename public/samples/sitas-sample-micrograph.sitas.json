@@ -1,0 +1,16 @@
+{
+  "schema": "sitas.manifest/0.1",
+  "manifestId": "MF-2026-0412-7C1E",
+  "file": "sitas-sample-micrograph.png",
+  "contentHash": "265d3d767bf03485d8978559d5b4531ff31ab9957a8d370737f3e4f38764aab7",
+  "algorithm": "SHA-256",
+  "signer": "SITAS BASIC \u00b7 Device SB-DEMO-0001 (demo lab key)",
+  "capturedAt": "2026-10-12T08:41:27Z",
+  "width": 1200,
+  "height": 900,
+  "signature": {
+    "alg": "ECDSA P-256",
+    "value": "DEMO-SIGNATURE-NOT-VERIFIED-IN-BROWSER"
+  },
+  "tsa": null
+}

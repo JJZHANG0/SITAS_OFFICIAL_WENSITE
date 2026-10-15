@@ -1,47 +1,78 @@
-import { useCallback, useMemo, useState, type DragEvent } from 'react'
+import { useCallback, useEffect, useState, type DragEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { Reveal } from '../components/Reveal'
 import { PageCta } from '../components/PageCta'
 import { useSite } from '../context/SiteContext'
-import {
-  buildCertificateHtml,
-  runVerification,
-  type VerifyOutcome,
-} from '../lib/verifyImage'
+import { runVerification, type VerifyOutcome } from '../lib/verifyImage'
 
-function DropZone({
-  accept,
-  label,
-  sub,
-  onFile,
-  dragLabel,
+const SAMPLE_IMG = '/samples/sitas-sample-micrograph.png'
+const SAMPLE_MANIFEST = '/samples/sitas-sample-micrograph.sitas.json'
+
+function fmtSize(n: number) {
+  return n > 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(2)} MB` : `${(n / 1024).toFixed(1)} KB`
+}
+
+async function toBase64(url: string) {
+  const buf = await (await fetch(url)).arrayBuffer()
+  let bin = ''
+  const bytes = new Uint8Array(buf)
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
+  return btoa(bin)
+}
+
+function UploadIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
+      <path d="M12 16V4M7 9l5-5 5 5" />
+      <path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4" />
+    </svg>
+  )
+}
+
+function DocIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
+      <path d="M6 3h8l4 4v14H6z" />
+      <path d="M14 3v4h4M9 12h6M9 15h6M9 18h4" />
+    </svg>
+  )
+}
+
+function DropCard({
+  id, label, title, hint, accept, icon, dropLabel, sub, file, thumb, onFile, onClear, clearLabel, replaceLabel,
 }: {
-  accept: string
+  id: string
   label: string
+  title: string
+  hint: string
+  accept: string
+  icon: React.ReactNode
+  dropLabel: string
   sub: string
-  onFile: (file: File) => void
-  dragLabel?: string
+  file: { name: string; size: number } | null
+  thumb?: string | null
+  onFile: (f: File) => void
+  onClear: () => void
+  clearLabel: string
+  replaceLabel: string
 }) {
   const [drag, setDrag] = useState(false)
-
   const onDrop = (e: DragEvent) => {
     e.preventDefault()
     setDrag(false)
     const f = e.dataTransfer.files?.[0]
     if (f) onFile(f)
   }
-
   return (
-    <label
-      className={`verify-drop${drag ? ' is-drag' : ''}`}
-      onDragOver={(e) => {
-        e.preventDefault()
-        setDrag(true)
-      }}
-      onDragLeave={() => setDrag(false)}
-      onDrop={onDrop}
-    >
+    <div className={`vcard${file ? ' has-file' : ''}`}>
+      <div className="vcard__head">
+        <span className="vcard__label">{label}</span>
+      </div>
+      <h3 className="vcard__title">{title}</h3>
+      <p className="vcard__hint">{hint}</p>
       <input
+        id={id}
+        className="vcard__input"
         type="file"
         accept={accept}
         onChange={(e) => {
@@ -50,109 +81,128 @@ function DropZone({
           e.target.value = ''
         }}
       />
-      <span className="verify-drop__label">{drag && dragLabel ? dragLabel : label}</span>
-      <span className="verify-drop__sub">{sub}</span>
-    </label>
+      {file ? (
+        <div className="vcard__file">
+          {thumb ? <img className="vcard__thumb" src={thumb} alt="" /> : <span className="vcard__fileicon">{icon}</span>}
+          <span className="vcard__meta">
+            <span className="vcard__name">{file.name}</span>
+            <span className="vcard__size">{fmtSize(file.size)}</span>
+          </span>
+          <span className="vcard__fileactions">
+            <label htmlFor={id} className="vcard__link">{replaceLabel}</label>
+            <button type="button" className="vcard__link" onClick={onClear}>{clearLabel}</button>
+          </span>
+        </div>
+      ) : (
+        <label
+          htmlFor={id}
+          className={`vcard__drop${drag ? ' is-drag' : ''}`}
+          onDragOver={(e) => {
+            e.preventDefault()
+            setDrag(true)
+          }}
+          onDragLeave={() => setDrag(false)}
+          onDrop={onDrop}
+        >
+          <span className="vcard__icon">{icon}</span>
+          <span className="vcard__droplabel">{dropLabel}</span>
+          <span className="vcard__sub">{sub}</span>
+        </label>
+      )}
+    </div>
   )
 }
 
 export function VerifyPage() {
   const { t } = useSite()
   const [image, setImage] = useState<File | null>(null)
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [manifestName, setManifestName] = useState<string | null>(null)
-  const [manifestText, setManifestText] = useState<string | null>(null)
+  const [thumb, setThumb] = useState<string | null>(null)
+  const [dims, setDims] = useState<{ w: number; h: number } | null>(null)
+  const [manifest, setManifest] = useState<{ name: string; size: number; text: string } | null>(null)
   const [busy, setBusy] = useState(false)
+  const [sampleBusy, setSampleBusy] = useState(false)
+  const [pdfBusy, setPdfBusy] = useState(false)
   const [outcome, setOutcome] = useState<VerifyOutcome | null>(null)
+
+  useEffect(() => () => { if (thumb) URL.revokeObjectURL(thumb) }, [thumb])
 
   const setImageFile = useCallback((file: File) => {
     setImage(file)
     setOutcome(null)
-    setPreviewUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev)
-      if (file.type.startsWith('image/')) return URL.createObjectURL(file)
-      return null
-    })
+    setDims(null)
+    const url = file.type.startsWith('image/') ? URL.createObjectURL(file) : null
+    setThumb(url)
+    if (url) {
+      const im = new Image()
+      im.onload = () => setDims({ w: im.naturalWidth, h: im.naturalHeight })
+      im.src = url
+    }
   }, [])
 
   const setManifestFile = useCallback(async (file: File) => {
-    const text = await file.text()
-    setManifestName(file.name)
-    setManifestText(text)
+    setManifest({ name: file.name, size: file.size, text: await file.text() })
     setOutcome(null)
   }, [])
 
-  const clearImage = () => {
-    setImage(null)
-    setOutcome(null)
-    setPreviewUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev)
-      return null
-    })
-  }
-
-  const clearManifest = () => {
-    setManifestName(null)
-    setManifestText(null)
-    setOutcome(null)
+  const loadSample = async () => {
+    setSampleBusy(true)
+    try {
+      const [ib, mt] = await Promise.all([
+        fetch(SAMPLE_IMG).then((r) => r.blob()),
+        fetch(SAMPLE_MANIFEST).then((r) => r.text()),
+      ])
+      setImageFile(new File([ib], 'sitas-sample-micrograph.png', { type: 'image/png' }))
+      setManifest({ name: 'sitas-sample-micrograph.sitas.json', size: mt.length, text: mt })
+    } finally {
+      setSampleBusy(false)
+    }
   }
 
   const onRun = async () => {
-    if (!image) {
-      setOutcome({ kind: 'need-image' })
-      return
-    }
+    if (!image) return
     setBusy(true)
     try {
-      const result = await runVerification(image, manifestText)
-      setOutcome(result)
+      setOutcome(await runVerification(image, manifest?.text ?? null))
     } finally {
       setBusy(false)
     }
   }
 
-  const statusLabel = useMemo(() => {
-    if (!outcome || outcome.kind === 'need-image') return null
-    if (outcome.kind === 'attested') return t.verifyStatusAttested
-    if (outcome.kind === 'mismatch') return t.verifyStatusMismatch
-    return t.verifyStatusNotAttested
-  }, [outcome, t])
-
-  const downloadCert = () => {
-    if (!outcome || outcome.kind === 'need-image') return
-    const rows: [string, string][] = [
-      [t.verifyFileLabel, `${outcome.fileName} · ${outcome.fileSize} B`],
-      [t.verifyHashLabel, outcome.imageHash],
-      [t.verifyAlgoLabel, 'SHA-256'],
-    ]
-    if (outcome.kind === 'attested' || outcome.kind === 'mismatch') {
-      if (outcome.manifest.contentHash) {
-        rows.push([t.verifyManifestHashLabel, outcome.manifest.contentHash])
-      }
-      if (outcome.manifest.signer) rows.push([t.verifySignerLabel, outcome.manifest.signer])
-      if (outcome.manifest.timestamp) rows.push([t.verifyTimeLabel, outcome.manifest.timestamp])
-      if (outcome.manifest.algorithm) {
-        rows[2] = [t.verifyAlgoLabel, outcome.manifest.algorithm]
-      }
+  const downloadPdf = async () => {
+    if (!outcome || outcome.kind !== 'attested') return
+    setPdfBusy(true)
+    try {
+      const [{ buildCertificatePdf, certificateNumber }, serifRegular, serifSemiBold] = await Promise.all([
+        import('../lib/certificate'),
+        toBase64('/fonts/EBGaramond-Regular.ttf'),
+        toBase64('/fonts/EBGaramond-SemiBold.ttf'),
+      ])
+      const m = outcome.manifest
+      const raw = m.raw as Record<string, unknown>
+      const w = dims?.w ?? (typeof raw.width === 'number' ? raw.width : null)
+      const h = dims?.h ?? (typeof raw.height === 'number' ? raw.height : null)
+      const now = new Date()
+      const doc = buildCertificatePdf(
+        {
+          fileName: outcome.fileName,
+          sha256: outcome.imageHash,
+          width: w,
+          height: h,
+          manifestId: m.manifestId,
+          signer: m.signer,
+          capturedAt: m.timestamp ? m.timestamp.replace('T', ' ').replace(/Z$/, ' UTC') : null,
+          verifiedAt: now,
+        },
+        { serifRegular, serifSemiBold },
+      )
+      doc.save(`${certificateNumber(outcome.imageHash, now)}.pdf`)
+    } finally {
+      setPdfBusy(false)
     }
-    rows.push([t.verifyStatusDemo, t.verifyDemoNote])
-
-    const html = buildCertificateHtml({
-      title: t.verifyCertTitle,
-      status: statusLabel ?? t.verifyStatusDemo,
-      rows,
-      note: t.verifyDemoNote,
-      footer: t.verifyCertFooter,
-      generatedAt: new Date().toISOString(),
-    })
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `sitas-verify-${outcome.imageHash.slice(0, 12)}.html`
-    a.click()
-    URL.revokeObjectURL(url)
   }
+
+  const verdict =
+    outcome?.kind === 'attested' ? 'ok' : outcome?.kind === 'mismatch' ? 'bad' : outcome?.kind === 'not-attested' ? 'none' : null
 
   return (
     <section className="slide page-deep verify visible" id="verify">
@@ -166,154 +216,132 @@ export function VerifyPage() {
         </Reveal>
       </div>
 
-      <div className="verify-layout">
-        <Reveal className="verify-panel" delay={40}>
-          <h3>{t.verifyImageTitle}</h3>
-          <p className="verify-panel__hint">{t.verifyImageHint}</p>
-          <DropZone
+      <Reveal className="vflow" delay={40}>
+        <div className="vgrid">
+          <DropCard
+            id="verify-image"
+            label={t.verifyCardImage}
+            title={t.verifyImageTitle}
+            hint={t.verifyImageHint}
             accept="image/*,.tif,.tiff"
-            label={t.verifyImageDrop}
+            icon={<UploadIcon />}
+            dropLabel={t.verifyImageDrop}
             sub={t.verifyImageSub}
+            file={image ? { name: image.name, size: image.size } : null}
+            thumb={thumb}
             onFile={setImageFile}
+            onClear={() => { setImage(null); setThumb(null); setDims(null); setOutcome(null) }}
+            clearLabel={t.verifyClear}
+            replaceLabel={t.verifyReplace}
           />
-          {image ? (
-            <div className="verify-file-chip">
-              <span>
-                {image.name} · {(image.size / 1024).toFixed(1)} KB
-              </span>
-              <button type="button" onClick={clearImage}>
-                {t.verifyClear}
-              </button>
-            </div>
-          ) : null}
-          {previewUrl ? (
-            <div className="verify-preview">
-              <img src={previewUrl} alt="" />
-            </div>
-          ) : null}
-        </Reveal>
-
-        <Reveal className="verify-panel" delay={80}>
-          <h3>{t.verifyManifestTitle}</h3>
-          <p className="verify-panel__hint">{t.verifyManifestHint}</p>
-          <DropZone
+          <DropCard
+            id="verify-manifest"
+            label={t.verifyCardManifest}
+            title={t.verifyManifestTitle}
+            hint={t.verifyManifestHint}
             accept=".json,.sitas,application/json,text/plain"
-            label={t.verifyManifestDrop}
+            icon={<DocIcon />}
+            dropLabel={t.verifyManifestDrop}
             sub={t.verifyManifestSub}
+            file={manifest ? { name: manifest.name, size: manifest.size } : null}
             onFile={(f) => void setManifestFile(f)}
+            onClear={() => { setManifest(null); setOutcome(null) }}
+            clearLabel={t.verifyClear}
+            replaceLabel={t.verifyReplace}
           />
-          {manifestName ? (
-            <div className="verify-file-chip">
-              <span>{manifestName}</span>
-              <button type="button" onClick={clearManifest}>
-                {t.verifyClear}
-              </button>
-            </div>
-          ) : null}
-          <div className="verify-actions">
+        </div>
+
+        <div className="vbar">
+          <p className="vbar__explainer">{t.verifyExplainer}</p>
+          <div className="vbar__actions">
+            <button type="button" className="vbar__sample" onClick={() => void loadSample()} disabled={sampleBusy}>
+              {sampleBusy ? t.verifyLoadingSample : t.verifyTrySample}
+            </button>
             <button
               type="button"
-              className="cta-btn cta-btn--primary"
+              className="cta-btn cta-btn--primary cta-btn--wide"
               onClick={() => void onRun()}
-              disabled={busy}
+              disabled={!image || busy}
             >
               {busy ? t.verifyRunning : t.verifyRun}
             </button>
           </div>
-        </Reveal>
-      </div>
+        </div>
+      </Reveal>
 
       {outcome && outcome.kind !== 'need-image' ? (
-        <Reveal className="verify-result" delay={40}>
-          <div
-            className={`verify-badge${
-              outcome.kind === 'attested'
-                ? ' verify-badge--ok'
-                : outcome.kind === 'mismatch'
-                  ? ' verify-badge--no'
-                  : ' verify-badge--no'
-            }`}
-          >
-            {statusLabel}
+        <div className={`vresult vresult--${verdict}`} aria-live="polite">
+          <div className="vresult__head">
+            <span className="vresult__label">{t.verifyResultTitle}</span>
+            <span className="vresult__demo">{t.verifyStatusDemo}</span>
           </div>
-          <div className="verify-badge verify-badge--demo">{t.verifyStatusDemo}</div>
-
-          <p className="verify-msg">
+          <div className="vresult__verdict">
+            <span className="vresult__dot" aria-hidden="true" />
+            <h2>
+              {outcome.kind === 'attested'
+                ? t.verifyStatusAttested
+                : outcome.kind === 'mismatch'
+                  ? t.verifyStatusTampered
+                  : t.verifyStatusNotAttested}
+            </h2>
+          </div>
+          <p className="vresult__msg">
             {outcome.kind === 'attested'
               ? t.verifyMsgAttested
               : outcome.kind === 'mismatch'
-                ? t.verifyMsgMismatch
+                ? t.verifyMsgTampered
                 : t.verifyMsgNotAttested}
           </p>
 
-          <dl className="verify-summary">
-            <dt>{t.verifyFileLabel}</dt>
-            <dd>
-              {outcome.fileName} · {outcome.fileSize} B
-            </dd>
-            <dt>{t.verifyHashLabel}</dt>
-            <dd>{outcome.imageHash}</dd>
-            {(outcome.kind === 'attested' || outcome.kind === 'mismatch') &&
-            outcome.manifest.contentHash ? (
+          <dl className="vresult__table">
+            <div><dt>{t.verifyFileLabel}</dt><dd>{outcome.fileName} · {fmtSize(outcome.fileSize)}</dd></div>
+            {dims ? <div><dt>{t.verifyDimensionsLabel}</dt><dd>{dims.w} × {dims.h} px</dd></div> : null}
+            <div><dt>{t.verifyHashLabel}</dt><dd className="mono">{outcome.imageHash}</dd></div>
+            {outcome.kind === 'not-attested' ? (
+              <div><dt>{t.verifyMatchLabel}</dt><dd>{t.verifyNoManifestNote}</dd></div>
+            ) : (
               <>
-                <dt>{t.verifyManifestHashLabel}</dt>
-                <dd>{outcome.manifest.contentHash}</dd>
+                <div>
+                  <dt>{t.verifyMatchLabel}</dt>
+                  <dd className={outcome.kind === 'attested' ? 'is-ok' : 'is-bad'}>
+                    {outcome.kind === 'attested' ? t.verifyMatchYes : t.verifyMatchNo}
+                  </dd>
+                </div>
+                {outcome.manifest.contentHash ? (
+                  <div><dt>{t.verifyManifestHashLabel}</dt><dd className="mono">{outcome.manifest.contentHash}</dd></div>
+                ) : null}
+                {outcome.manifest.manifestId ? (
+                  <div><dt>{t.verifyManifestIdLabel}</dt><dd>{outcome.manifest.manifestId}</dd></div>
+                ) : null}
+                {outcome.manifest.signer ? (
+                  <div><dt>{t.verifySignerLabel}</dt><dd>{outcome.manifest.signer}</dd></div>
+                ) : null}
+                {outcome.manifest.timestamp ? (
+                  <div><dt>{t.verifyTimeLabel}</dt><dd>{outcome.manifest.timestamp}</dd></div>
+                ) : null}
               </>
-            ) : null}
-            {(outcome.kind === 'attested' || outcome.kind === 'mismatch') &&
-            outcome.manifest.signer ? (
-              <>
-                <dt>{t.verifySignerLabel}</dt>
-                <dd>{outcome.manifest.signer}</dd>
-              </>
-            ) : null}
-            {(outcome.kind === 'attested' || outcome.kind === 'mismatch') &&
-            outcome.manifest.timestamp ? (
-              <>
-                <dt>{t.verifyTimeLabel}</dt>
-                <dd>{outcome.manifest.timestamp}</dd>
-              </>
-            ) : null}
-            <dt>{t.verifyAlgoLabel}</dt>
-            <dd>
-              {(outcome.kind === 'attested' || outcome.kind === 'mismatch') &&
-              outcome.manifest.algorithm
-                ? outcome.manifest.algorithm
-                : 'SHA-256'}
-            </dd>
+            )}
           </dl>
 
-          <div className="verify-actions">
-            <button type="button" className="cta-btn cta-btn--primary" onClick={downloadCert}>
-              {t.verifyDownloadCert}
-            </button>
-            {outcome.kind === 'not-attested' ? (
-              <Link className="cta-btn cta-btn--ghost" to="/introduce">
-                {t.verifyCtaLearn}
-              </Link>
+          <div className="vresult__actions">
+            {outcome.kind === 'attested' ? (
+              <button type="button" className="cta-btn cta-btn--primary cta-btn--wide" onClick={() => void downloadPdf()} disabled={pdfBusy}>
+                {pdfBusy ? t.verifyGeneratingPdf : t.verifyDownloadPdf}
+              </button>
             ) : (
-              <Link className="cta-btn cta-btn--ghost" to="/product">
-                {t.ctaSeeProduct}
-              </Link>
+              <Link className="cta-btn cta-btn--primary cta-btn--wide" to="/introduce">{t.verifyCtaLearn}</Link>
             )}
           </div>
           <p className="verify-note">{t.verifyDemoNote}</p>
-        </Reveal>
+        </div>
       ) : null}
 
-      {outcome?.kind === 'need-image' ? (
-        <p className="verify-msg" style={{ marginTop: 28, position: 'relative', zIndex: 2 }}>
-          {t.verifyNeedImage}
-        </p>
-      ) : null}
-
-      <Reveal className="page-cta-wrap" delay={80}>
+      <Reveal className="page-cta-wrap" delay={40}>
         <PageCta
           secondary={{ to: '/introduce', label: t.ctaSeeIntroduce }}
           tertiary={{ to: '/partnership', label: t.ctaSeePartner }}
         />
       </Reveal>
-
     </section>
   )
 }

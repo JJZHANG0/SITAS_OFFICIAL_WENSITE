@@ -181,6 +181,23 @@ export type Copy = {
   verifyCtaLearn: string
   verifyCertTitle: string
   verifyCertFooter: string
+  verifyCardImage: string
+  verifyCardManifest: string
+  verifyExplainer: string
+  verifyTrySample: string
+  verifyLoadingSample: string
+  verifyStatusTampered: string
+  verifyMsgTampered: string
+  verifyDownloadPdf: string
+  verifyGeneratingPdf: string
+  verifyDimensionsLabel: string
+  verifyManifestIdLabel: string
+  verifyMatchLabel: string
+  verifyMatchYes: string
+  verifyMatchNo: string
+  verifyReplace: string
+  verifyResultTitle: string
+  verifyNoManifestNote: string
   detailBasic: ProductDetailCopy
   detailPro: ProductDetailCopy
 }
@@ -444,7 +461,7 @@ export const copy: Record<Lang, Copy> = {
     verifyManifestDrop: 'Drop manifest or browse',
     verifyManifestSub: '.json · .sitas',
     verifyClear: 'Clear',
-    verifyRun: 'Run verification',
+    verifyRun: 'Verify image',
     verifyRunning: 'Hashing…',
     verifyNeedImage: 'Add an image to begin.',
     verifyStatusAttested: 'Attested · hash match',
@@ -469,6 +486,23 @@ export const copy: Record<Lang, Copy> = {
     verifyCtaLearn: 'Learn about SITAS',
     verifyCertTitle: 'SITAS verification certificate',
     verifyCertFooter: 'Generated client-side by sitas.tech · Preview verification · © Verisci',
+    verifyCardImage: '01 / Image',
+    verifyCardManifest: '02 / Manifest · optional',
+    verifyExplainer: 'The manifest is the detached, signed evidence written at capture. Without it we can compute the image fingerprint, but cannot confirm SITAS attestation.',
+    verifyTrySample: 'Try a sample',
+    verifyLoadingSample: 'Loading sample…',
+    verifyStatusTampered: 'Tampered · hash mismatch',
+    verifyMsgTampered: 'The manifest’s content hash does not match this file. The image was changed after attestation — or the wrong manifest was paired.',
+    verifyDownloadPdf: 'Download certificate (PDF)',
+    verifyGeneratingPdf: 'Generating PDF…',
+    verifyDimensionsLabel: 'Dimensions',
+    verifyManifestIdLabel: 'Manifest ID',
+    verifyMatchLabel: 'Manifest hash match',
+    verifyMatchYes: 'Match',
+    verifyMatchNo: 'No match',
+    verifyReplace: 'Replace',
+    verifyResultTitle: 'Verification result',
+    verifyNoManifestNote: 'No manifest provided — fingerprint only.',
     detailBasic: {
       pageNo: '02 / SITAS BASIC',
       kicker: 'Entry hardware',
@@ -817,6 +851,23 @@ export const copy: Record<Lang, Copy> = {
     verifyCtaLearn: '了解 SITAS',
     verifyCertTitle: 'SITAS 核验证书',
     verifyCertFooter: '由 sitas.tech 客户端生成 · 预览核验 · © Verisci',
+    verifyCardImage: '01 / 图像',
+    verifyCardManifest: '02 / 存证清单 · 可选',
+    verifyExplainer: '存证清单是采集时生成的分离式签名证据。没有清单时，我们能计算图像指纹，但无法确认 SITAS 存证。',
+    verifyTrySample: '试用示例',
+    verifyLoadingSample: '正在加载示例…',
+    verifyStatusTampered: '疑似篡改 · 哈希不一致',
+    verifyMsgTampered: '清单中的内容哈希与此文件不一致。图像可能在存证后被修改，或配对了错误的清单。',
+    verifyDownloadPdf: '下载认证证书 (PDF)',
+    verifyGeneratingPdf: '正在生成 PDF…',
+    verifyDimensionsLabel: '尺寸',
+    verifyManifestIdLabel: '清单 ID',
+    verifyMatchLabel: '清单哈希比对',
+    verifyMatchYes: '一致',
+    verifyMatchNo: '不一致',
+    verifyReplace: '更换',
+    verifyResultTitle: '核验结果',
+    verifyNoManifestNote: '未提供清单——仅计算指纹。',
     detailBasic: {
       pageNo: '02 / SITAS BASIC',
       kicker: '入门硬件',

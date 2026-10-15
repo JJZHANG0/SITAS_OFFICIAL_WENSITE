@@ -2,6 +2,7 @@
 
 export type ParsedManifest = {
   raw: Record<string, unknown>
+  manifestId: string | null
   contentHash: string | null
   signer: string | null
   timestamp: string | null
@@ -128,8 +129,10 @@ export function parseManifestJson(text: string): ParsedManifest | null {
       body.rfc3161,
   )
 
+  const manifestId = pickString(body, ['manifestId', 'manifest_id', 'id', 'uuid'])
   return {
     raw: body,
+    manifestId,
     contentHash,
     signer,
     timestamp,
