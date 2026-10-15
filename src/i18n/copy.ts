@@ -198,6 +198,25 @@ export type Copy = {
   verifyReplace: string
   verifyResultTitle: string
   verifyNoManifestNote: string
+  verifyStatusUnreadable: string
+  verifyMsgUnreadable: string
+  verifyMsgLsbAttested: string
+  verifyMsgLsbTampered: string
+  verifyMethodLabel: string
+  verifyMethodLsb: string
+  verifyMethodManifest: string
+  verifyMethodNone: string
+  verifySigLabel: string
+  verifySigValid: string
+  verifySigInvalid: string
+  verifyBadBlocksLabel: string
+  verifyTamperMapLabel: string
+  verifyLsbPreview: string
+  verifySampleLsb: string
+  verifySampleTampered: string
+  verifySampleManifest: string
+  verifyDownloadReport: string
+  verifyNoMark: string
   detailBasic: ProductDetailCopy
   detailPro: ProductDetailCopy
 }
@@ -503,6 +522,25 @@ export const copy: Record<Lang, Copy> = {
     verifyReplace: 'Replace',
     verifyResultTitle: 'Verification result',
     verifyNoManifestNote: 'No manifest provided — fingerprint only.',
+    verifyStatusUnreadable: 'Unreadable · lossy or undecodable',
+    verifyMsgUnreadable: 'This file is lossy (e.g. JPEG) or could not be decoded in the browser, so an embedded mark cannot survive or be read. Provide the lossless original, or the original plus its detached manifest.',
+    verifyMsgLsbAttested: 'A validly signed SITAS embedded mark was found, and the image content matches the hash recorded in it at capture.',
+    verifyMsgLsbTampered: 'A SITAS embedded mark was found, but the image content no longer matches it. The highlighted blocks differ from the attested state.',
+    verifyMethodLabel: 'Method',
+    verifyMethodLsb: 'Embedded LSB mark · spec preview v0',
+    verifyMethodManifest: 'Detached manifest · SHA-256',
+    verifyMethodNone: 'No SITAS mark found · no manifest',
+    verifySigLabel: 'Mark signature',
+    verifySigValid: 'Valid · ECDSA P-256 (key self-asserted, not checked against a registry)',
+    verifySigInvalid: 'Invalid signature',
+    verifyBadBlocksLabel: 'Changed blocks',
+    verifyTamperMapLabel: 'Tamper map · 32×32 px blocks',
+    verifyLsbPreview: 'Spec preview v0 — embedded marks are not yet written by the SITAS App, which uses detached manifests and never modifies the original.',
+    verifySampleLsb: 'Marked sample',
+    verifySampleTampered: 'Tampered sample',
+    verifySampleManifest: 'Manifest sample',
+    verifyDownloadReport: 'Download verification report (PDF)',
+    verifyNoMark: 'No SITAS mark found',
     detailBasic: {
       pageNo: '02 / SITAS BASIC',
       kicker: 'Entry hardware',
@@ -868,6 +906,25 @@ export const copy: Record<Lang, Copy> = {
     verifyReplace: '更换',
     verifyResultTitle: '核验结果',
     verifyNoManifestNote: '未提供清单——仅计算指纹。',
+    verifyStatusUnreadable: '无法读取 · 有损或无法解码',
+    verifyMsgUnreadable: '该文件为有损格式（如 JPEG）或浏览器无法解码，嵌入标记无法保留或读取。请提供无损原图，或原图加分离式清单。',
+    verifyMsgLsbAttested: '检测到签名有效的 SITAS 嵌入标记，且图像内容与其中记录的采集时哈希一致。',
+    verifyMsgLsbTampered: '检测到 SITAS 嵌入标记，但图像内容已与其不符。高亮区块与存证状态不一致。',
+    verifyMethodLabel: '方法',
+    verifyMethodLsb: '嵌入式 LSB 标记 · 规范预览 v0',
+    verifyMethodManifest: '分离式清单 · SHA-256',
+    verifyMethodNone: '未发现 SITAS 标记 · 无清单',
+    verifySigLabel: '标记签名',
+    verifySigValid: '有效 · ECDSA P-256（公钥为自声明，未与设备注册表核对）',
+    verifySigInvalid: '签名无效',
+    verifyBadBlocksLabel: '改动区块',
+    verifyTamperMapLabel: '篡改分布 · 32×32 像素区块',
+    verifyLsbPreview: '规范预览 v0 —— SITAS App 目前不写入嵌入标记；App 使用分离式清单，原图永不修改。',
+    verifySampleLsb: '嵌入标记样例',
+    verifySampleTampered: '篡改样例',
+    verifySampleManifest: '清单样例',
+    verifyDownloadReport: '下载查验报告（PDF）',
+    verifyNoMark: '未发现 SITAS 标记',
     detailBasic: {
       pageNo: '02 / SITAS BASIC',
       kicker: '入门硬件',

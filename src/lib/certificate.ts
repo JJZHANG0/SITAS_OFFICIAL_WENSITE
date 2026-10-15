@@ -14,6 +14,13 @@ export type CertificateData = {
   signer?: string | null
   capturedAt?: string | null
   verifiedAt: Date
+  /** certificate (attested, red seal) or report (any verdict, grey stamp) */
+  variant?: 'certificate' | 'report'
+  verdict?: 'attested' | 'tampered' | 'not-attested'
+  method?: 'lsb' | 'manifest' | 'none'
+  signatureNote?: string | null
+  grid?: [number, number] | null
+  badBlocks?: number[] | null
 }
 
 export type CertFonts = { serifRegular: string; serifSemiBold: string }
@@ -23,9 +30,30 @@ const MUTED: [number, number, number] = [110, 110, 110]
 const RED: [number, number, number] = [178, 34, 34]
 const VERIFY_URL = 'http://sitas.tech/verify'
 
-export function certificateNumber(sha256: string, d: Date) {
+export function certificateNumber(sha256: string, d: Date, report = false) {
   const ymd = d.toISOString().slice(0, 10).replace(/-/g, '')
-  return `SITAS-${ymd}-${sha256.slice(0, 8).toUpperCase()}`
+  return `SITAS-${report ? 'R-' : ''}${ymd}-${sha256.slice(0, 8).toUpperCase()}`
+}
+
+const METHOD_TEXT = {
+  lsb: 'Embedded LSB mark (SITAS-LSB-0, demo spec) · SHA-256 of LSB-cleared RGB · 32×32 block hashes · ECDSA P-256 verified (self-asserted key)',
+  manifest: 'SHA-256 content hash · detached manifest · ECDSA P-256 (verified in Companion App)',
+  none: 'SHA-256 content hash · embedded LSB mark search · no detached manifest supplied',
+}
+
+const VERDICT_TEXT = {
+  attested: 'ATTESTED — integrity confirmed',
+  tampered: 'TAMPERED — content differs from the attested state',
+  'not-attested': 'NOT ATTESTED — no SITAS mark or manifest found',
+}
+
+const REPORT_STATEMENT = {
+  attested:
+    'This report records that the digital image identified below was examined and that its content matches the SITAS attestation recorded at capture.',
+  tampered:
+    'This report records that the digital image identified below carries SITAS attestation data, but its pixel content no longer matches the attested state. The regions that differ are listed below.',
+  'not-attested':
+    'This report records that the digital image identified below was examined and that no SITAS attestation (embedded mark or detached manifest) could be found. This does not imply the image is forged — only that its origin cannot be confirmed by SITAS.',
 }
 
 export function buildCertificatePdf(data: CertificateData, fonts: CertFonts): jsPDF {
@@ -38,7 +66,10 @@ export function buildCertificatePdf(data: CertificateData, fonts: CertFonts): js
   const W = 210
   const H = 297
   const cx = W / 2
-  const certNo = certificateNumber(data.sha256, data.verifiedAt)
+  const report = data.variant === 'report'
+  const verdict = data.verdict ?? 'attested'
+  const method = data.method ?? 'manifest'
+  const certNo = certificateNumber(data.sha256, data.verifiedAt, report)
 
   doc.setProperties({
     title: `SITAS Certificate of Image Integrity ${certNo}`,
@@ -79,7 +110,7 @@ export function buildCertificatePdf(data: CertificateData, fonts: CertFonts): js
   doc.setFont('EBG', 'bold')
   doc.setFontSize(21)
   doc.setCharSpace(0.4)
-  doc.text('CERTIFICATE OF IMAGE INTEGRITY', cx, 66, { align: 'center' })
+  doc.text(report ? 'IMAGE VERIFICATION REPORT' : 'CERTIFICATE OF IMAGE INTEGRITY', cx, 66, { align: 'center' })
   doc.setCharSpace(0)
 
   doc.setFont('EBG', 'normal')
@@ -92,13 +123,17 @@ export function buildCertificatePdf(data: CertificateData, fonts: CertFonts): js
   // ---- statement ----
   doc.setTextColor(...INK)
   doc.setFontSize(12)
-  const statement =
-    'This is to certify that the digital image identified below was presented for verification and that its SHA-256 content hash matches the value recorded in the accompanying detached SITAS manifest. To the extent of this check, the file is bit-for-bit identical to the image as attested at capture.'
+  const statement = report
+    ? REPORT_STATEMENT[verdict]
+    : method === 'lsb'
+      ? 'This is to certify that the digital image identified below was presented for verification, that it carries a validly signed SITAS embedded mark, and that its pixel content (excluding the mark bits) matches the hash recorded in that mark at capture.'
+      : 'This is to certify that the digital image identified below was presented for verification and that its SHA-256 content hash matches the value recorded in the accompanying detached SITAS manifest. To the extent of this check, the file is bit-for-bit identical to the image as attested at capture.'
   doc.text(doc.splitTextToSize(statement, 150), cx, 91, { align: 'center', lineHeightFactor: 1.4 })
 
   // ---- details table ----
   const rows: [string, string, boolean?][] = [
-    ['Certificate No.', certNo],
+    [report ? 'Report No.' : 'Certificate No.', certNo],
+    ...(report ? ([['Verdict', VERDICT_TEXT[verdict]]] as [string, string][]) : []),
     ['File name', data.fileName],
     ['SHA-256', data.sha256, true],
     ['Image dimensions', data.width && data.height ? `${data.width} × ${data.height} px` : '—'],
@@ -106,12 +141,13 @@ export function buildCertificatePdf(data: CertificateData, fonts: CertFonts): js
     ['Signer / device', data.signer || '—'],
     ['Capture time', data.capturedAt || '—'],
     ['Verification time', data.verifiedAt.toISOString().replace('T', ' ').replace(/\.\d+Z$/, ' UTC')],
-    ['Method', 'SHA-256 content hash · detached manifest · ECDSA P-256 (verified in Companion App)'],
+    ['Method', METHOD_TEXT[method]],
+    ...(data.signatureNote ? ([['Signature', data.signatureNote]] as [string, string][]) : []),
   ]
   const tx = 28
   const vx = 74
   const vw = W - 28 - vx
-  let y = 122
+  let y = report ? 116 : 122
   doc.setDrawColor(200, 200, 200)
   doc.setLineWidth(0.15)
   doc.line(tx, y - 5, W - 28, y - 5)
@@ -134,28 +170,30 @@ export function buildCertificatePdf(data: CertificateData, fonts: CertFonts): js
       lines = doc.splitTextToSize(v, vw)
     }
     doc.text(lines, vx, y, { lineHeightFactor: 1.35 })
-    y += Math.max(1, lines.length) * (mono ? 4.2 : 5) + 3.6
+    y += Math.max(1, lines.length) * (mono ? 4.2 : 5) + (report ? 2.8 : 3.6)
     doc.line(tx, y - 5, W - 28, y - 5)
   }
 
-  // ---- QR (left) + re-verify note ----
+  // ---- lower band: QR · note · optional block map ----
   const qrY = y + 1
-  qr(doc, VERIFY_URL, tx, qrY, 24)
+  qr(doc, VERIFY_URL, tx, qrY, 22)
   doc.setFont('EBG', 'normal')
   doc.setFontSize(7.2)
   doc.setTextColor(...MUTED)
-  doc.text('sitas.tech/verify', tx + 12, qrY + 27.5, { align: 'center' })
-  doc.setFontSize(9.5)
+  doc.text('sitas.tech/verify', tx + 11, qrY + 25.5, { align: 'center' })
+  const hasMap = !!(data.grid && data.badBlocks && data.badBlocks.length)
+  const noteW = hasMap ? 78 : report ? 122 : 96
+  const mapW = 36
+  const noteX = hasMap ? tx + 28 + mapW + 6 : tx + 28
+  doc.setFontSize(9.2)
   doc.setTextColor(...INK)
-  doc.text(
-    doc.splitTextToSize(
-      'Re-verification requires the original image file and its detached manifest. Any modification to the file — even a single byte — will produce a different SHA-256 and invalidate this certificate.',
-      122,
-    ),
-    tx + 30,
-    qrY + 6,
-    { lineHeightFactor: 1.4 },
-  )
+  const note = hasMap
+    ? `Block map (left): ${data.badBlocks!.length} of ${data.grid![0] * data.grid![1]} blocks (32×32 px) differ from their attested hashes. Filled cells mark the modified regions.`
+    : method === 'lsb'
+      ? 'Re-verification requires this image in a lossless format with its embedded mark intact. Any change to pixel content breaks the signed content and block hashes.'
+      : 'Re-verification requires the original image file and its detached manifest. Any modification to the file — even a single byte — will produce a different SHA-256.'
+  doc.text(doc.splitTextToSize(note, noteW), noteX, qrY + 5, { lineHeightFactor: 1.4 })
+  if (hasMap) blockMap(doc, data.grid!, data.badBlocks!, tx + 28, qrY, mapW)
 
   // ---- signature lines ----
   const sy = 252
@@ -173,7 +211,8 @@ export function buildCertificatePdf(data: CertificateData, fonts: CertFonts): js
   doc.text('SITAS / Verisci', 150, sy + 9.5, { align: 'center' })
 
   // ---- seal (overlaps right signature) ----
-  seal(doc, 158, sy - 6, 17.5, data.verifiedAt)
+  if (report) reportStamp(doc, 158, sy - 6, verdict, data.verifiedAt)
+  else seal(doc, 158, sy - 6, 17.5, data.verifiedAt)
 
   // ---- footer disclaimer ----
   doc.setFont('EBG', 'normal')
@@ -181,7 +220,11 @@ export function buildCertificatePdf(data: CertificateData, fonts: CertFonts): js
   doc.setTextColor(...MUTED)
   doc.text(
     doc.splitTextToSize(
-      'Disclaimer: This certificate attests only that the presented file matches the content hash in the supplied detached manifest at the stated verification time. Browser-issued certificates are a preview: ECDSA P-256 signature and RFC 3161 timestamp validation are performed in the SITAS Companion App. This document makes no claim about scientific validity of the image content.',
+      report
+        ? 'Disclaimer: This report describes the result of an automated integrity check of the presented file at the stated time. Browser-issued reports are a preview. Embedded-mark verification follows the SITAS-LSB-0 draft specification and its public key is self-asserted until checked against a SITAS device registry. No claim is made about the scientific validity of the image content.'
+        : method === 'lsb'
+          ? 'Disclaimer: This certificate attests only that the presented file carries a validly signed SITAS-LSB-0 embedded mark matching its pixel content at the stated time. SITAS-LSB-0 is a draft/demo specification; the signing key is self-asserted until checked against a SITAS device registry. No claim is made about the scientific validity of the image content.'
+          : 'Disclaimer: This certificate attests only that the presented file matches the content hash in the supplied detached manifest at the stated verification time. Browser-issued certificates are a preview: ECDSA P-256 signature and RFC 3161 timestamp validation are performed in the SITAS Companion App. This document makes no claim about scientific validity of the image content.',
       160,
     ),
     cx,
@@ -324,4 +367,67 @@ function rotText(doc: jsPDF, s: string, cx: number, cy: number, rot: number) {
   const px = cx - (w / 2) * Math.cos(r)
   const py = cy + (w / 2) * Math.sin(r)
   doc.text(s, px, py, { angle: rot })
+}
+
+function blockMap(doc: jsPDF, grid: [number, number], bad: number[], x: number, y: number, w: number) {
+  const [gh, gw] = grid
+  const cell = w / gw
+  const h = cell * gh
+  const set = new Set(bad)
+  doc.setDrawColor(210, 210, 210)
+  doc.setLineWidth(0.05)
+  for (let r = 0; r < gh; r++)
+    for (let c = 0; c < gw; c++) {
+      if (set.has(r * gw + c)) {
+        doc.setFillColor(...INK)
+        doc.rect(x + c * cell, y + r * cell, cell, cell, 'F')
+      } else doc.rect(x + c * cell, y + r * cell, cell, cell, 'S')
+    }
+  doc.setDrawColor(...INK)
+  doc.setLineWidth(0.25)
+  doc.rect(x, y, w, h)
+  doc.setFont('EBG', 'normal')
+  doc.setFontSize(6.8)
+  doc.setTextColor(...MUTED)
+  doc.text(`TAMPER MAP · ${gw}×${gh} blocks`, x, y + h + 3.4)
+}
+
+function reportStamp(doc: jsPDF, cx: number, cy: number, verdict: 'attested' | 'tampered' | 'not-attested', date: Date) {
+  const GREY: [number, number, number] = [95, 95, 95]
+  const rot = -8
+  const GS = (doc as unknown as { GState: new (o: object) => unknown }).GState
+  doc.saveGraphicsState()
+  ;(doc as unknown as { setGState: (g: unknown) => void }).setGState(new GS({ opacity: 0.8 }))
+  doc.setDrawColor(...GREY)
+  doc.setTextColor(...GREY)
+  const w = 46
+  const h = 20
+  const r = (rot * Math.PI) / 180
+  const corner = (dx: number, dy: number): [number, number] => [cx + dx * Math.cos(r) + dy * Math.sin(r), cy - dx * Math.sin(r) + dy * Math.cos(r)]
+  const box = (ww: number, hh: number) => {
+    const pts = [corner(-ww / 2, -hh / 2), corner(ww / 2, -hh / 2), corner(ww / 2, hh / 2), corner(-ww / 2, hh / 2)]
+    polyline(doc, pts, true)
+  }
+  doc.setLineWidth(0.9)
+  box(w, h)
+  doc.setLineWidth(0.3)
+  box(w - 2.4, h - 2.4)
+  doc.setFont('EBG', 'bold')
+  doc.setFontSize(10.5)
+  rotTextAt(doc, 'VERIFICATION REPORT', cx, cy, 0, -2.6, rot)
+  doc.setFontSize(7.4)
+  rotTextAt(doc, verdict === 'attested' ? 'ATTESTED' : verdict === 'tampered' ? 'TAMPERED' : 'NOT ATTESTED', cx, cy, 0, 2.2, rot)
+  doc.setFont('EBG', 'normal')
+  doc.setFontSize(6.2)
+  rotTextAt(doc, `SITAS · ${date.toISOString().slice(0, 10)}`, cx, cy, 0, 6, rot)
+  doc.restoreGraphicsState()
+}
+
+/** Draw centered text at local offset (dx, dy) of a box rotated by rot degrees around (cx, cy). */
+function rotTextAt(doc: jsPDF, s: string, cx: number, cy: number, dx: number, dy: number, rot: number) {
+  const r = (rot * Math.PI) / 180
+  const ox = cx + dx * Math.cos(r) + dy * Math.sin(r)
+  const oy = cy - dx * Math.sin(r) + dy * Math.cos(r)
+  const w = doc.getTextWidth(s)
+  doc.text(s, ox - (w / 2) * Math.cos(r), oy + (w / 2) * Math.sin(r), { angle: rot })
 }

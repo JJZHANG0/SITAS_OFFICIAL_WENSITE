@@ -3,10 +3,44 @@ import { Link } from 'react-router-dom'
 import { Reveal } from '../components/Reveal'
 import { PageCta } from '../components/PageCta'
 import { useSite } from '../context/SiteContext'
-import { runVerification, type VerifyOutcome } from '../lib/verifyImage'
+import { runVerification, type ParsedManifest } from '../lib/verifyImage'
+import { decodeLsb, fileToRaster, isLossy, type LsbResult } from '../lib/lsbWatermark'
 
 const SAMPLE_IMG = '/samples/sitas-sample-micrograph.png'
 const SAMPLE_MANIFEST = '/samples/sitas-sample-micrograph.sitas.json'
+const SAMPLE_LSB = '/samples/sitas-lsb-sample.png'
+const SAMPLE_LSB_TAMPERED = '/samples/sitas-lsb-sample-tampered.png'
+
+type Kind = 'attested' | 'tampered' | 'not-attested' | 'unreadable'
+type Method = 'lsb' | 'manifest' | 'none'
+type Outcome = {
+  kind: Kind
+  method: Method
+  fileName: string
+  fileSize: number
+  imageHash: string
+  manifest: ParsedManifest | null
+  lsb: Extract<LsbResult, { found: true }> | null
+  width: number | null
+  height: number | null
+}
+
+function TamperOverlay({ grid, bad }: { grid: [number, number]; bad: number[] }) {
+  const [gh, gw] = grid
+  return (
+    <svg className="vmap__overlay" viewBox={`0 0 ${gw} ${gh}`} preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <pattern id="vhatch" width="0.35" height="0.35" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="0.35" stroke="#fff" strokeWidth="0.12" />
+        </pattern>
+      </defs>
+      {bad.map((i) => (
+        <rect key={i} x={i % gw} y={Math.floor(i / gw)} width="1" height="1" fill="url(#vhatch)" stroke="#fff" strokeWidth="0.08" />
+      ))}
+    </svg>
+  )
+}
+
 
 function fmtSize(n: number) {
   return n > 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(2)} MB` : `${(n / 1024).toFixed(1)} KB`
@@ -122,7 +156,7 @@ export function VerifyPage() {
   const [busy, setBusy] = useState(false)
   const [sampleBusy, setSampleBusy] = useState(false)
   const [pdfBusy, setPdfBusy] = useState(false)
-  const [outcome, setOutcome] = useState<VerifyOutcome | null>(null)
+  const [outcome, setOutcome] = useState<Outcome | null>(null)
 
   useEffect(() => () => { if (thumb) URL.revokeObjectURL(thumb) }, [thumb])
 
@@ -144,15 +178,22 @@ export function VerifyPage() {
     setOutcome(null)
   }, [])
 
-  const loadSample = async () => {
+  const loadSample = async (which: 'lsb' | 'tampered' | 'manifest') => {
     setSampleBusy(true)
     try {
-      const [ib, mt] = await Promise.all([
-        fetch(SAMPLE_IMG).then((r) => r.blob()),
-        fetch(SAMPLE_MANIFEST).then((r) => r.text()),
-      ])
-      setImageFile(new File([ib], 'sitas-sample-micrograph.png', { type: 'image/png' }))
-      setManifest({ name: 'sitas-sample-micrograph.sitas.json', size: mt.length, text: mt })
+      if (which === 'manifest') {
+        const [ib, mt] = await Promise.all([
+          fetch(SAMPLE_IMG).then((r) => r.blob()),
+          fetch(SAMPLE_MANIFEST).then((r) => r.text()),
+        ])
+        setImageFile(new File([ib], 'sitas-sample-micrograph.png', { type: 'image/png' }))
+        setManifest({ name: 'sitas-sample-micrograph.sitas.json', size: mt.length, text: mt })
+      } else {
+        const url = which === 'lsb' ? SAMPLE_LSB : SAMPLE_LSB_TAMPERED
+        const ib = await fetch(url).then((r) => r.blob())
+        setImageFile(new File([ib], url.split('/').pop()!, { type: 'image/png' }))
+        setManifest(null)
+      }
     } finally {
       setSampleBusy(false)
     }
@@ -162,14 +203,43 @@ export function VerifyPage() {
     if (!image) return
     setBusy(true)
     try {
-      setOutcome(await runVerification(image, manifest?.text ?? null))
+      const base = await runVerification(image, manifest?.text ?? null)
+      if (base.kind === 'need-image') return
+      const common = { fileName: base.fileName, fileSize: base.fileSize, imageHash: base.imageHash }
+      const lossy = isLossy(image)
+      const raster = lossy ? null : await fileToRaster(image)
+      // 1) embedded mark
+      if (raster) {
+        const lsb = await decodeLsb(raster)
+        if (lsb.found) {
+          setOutcome({
+            ...common,
+            kind: lsb.signatureValid && lsb.contentMatch ? 'attested' : 'tampered',
+            method: 'lsb',
+            manifest: null,
+            lsb,
+            width: raster.width,
+            height: raster.height,
+          })
+          return
+        }
+      }
+      const w = raster?.width ?? dims?.w ?? null
+      const h = raster?.height ?? dims?.h ?? null
+      // 2) detached manifest
+      if (base.kind === 'attested' || base.kind === 'mismatch') {
+        setOutcome({ ...common, kind: base.kind === 'attested' ? 'attested' : 'tampered', method: 'manifest', manifest: base.manifest, lsb: null, width: w, height: h })
+        return
+      }
+      // 3) nothing
+      setOutcome({ ...common, kind: lossy || !raster ? 'unreadable' : 'not-attested', method: 'none', manifest: null, lsb: null, width: w, height: h })
     } finally {
       setBusy(false)
     }
   }
 
   const downloadPdf = async () => {
-    if (!outcome || outcome.kind !== 'attested') return
+    if (!outcome) return
     setPdfBusy(true)
     try {
       const [{ buildCertificatePdf, certificateNumber }, serifRegular, serifSemiBold] = await Promise.all([
@@ -178,31 +248,55 @@ export function VerifyPage() {
         toBase64('/fonts/EBGaramond-SemiBold.ttf'),
       ])
       const m = outcome.manifest
-      const raw = m.raw as Record<string, unknown>
-      const w = dims?.w ?? (typeof raw.width === 'number' ? raw.width : null)
-      const h = dims?.h ?? (typeof raw.height === 'number' ? raw.height : null)
+      const L = outcome.lsb
+      const report = outcome.kind !== 'attested'
       const now = new Date()
+      const ts = L?.meta.capturedAt ?? m?.timestamp ?? null
       const doc = buildCertificatePdf(
         {
           fileName: outcome.fileName,
           sha256: outcome.imageHash,
-          width: w,
-          height: h,
-          manifestId: m.manifestId,
-          signer: m.signer,
-          capturedAt: m.timestamp ? m.timestamp.replace('T', ' ').replace(/Z$/, ' UTC') : null,
+          width: outcome.width,
+          height: outcome.height,
+          manifestId: L ? `Embedded · copy ${L.copyIndex + 1}/3` : (m?.manifestId ?? null),
+          signer: L ? (L.meta.signer ?? L.meta.deviceId ?? null) : (m?.signer ?? null),
+          capturedAt: ts ? ts.replace('T', ' ').replace(/Z$/, ' UTC') : null,
           verifiedAt: now,
+          variant: report ? 'report' : 'certificate',
+          verdict: outcome.kind === 'unreadable' ? 'not-attested' : outcome.kind,
+          method: outcome.method,
+          signatureNote: L ? (L.signatureValid ? 'Valid (ECDSA P-256 over embedded payload; key self-asserted)' : 'INVALID') : null,
+          grid: L?.grid ?? null,
+          badBlocks: L?.badBlocks ?? null,
         },
         { serifRegular, serifSemiBold },
       )
-      doc.save(`${certificateNumber(outcome.imageHash, now)}.pdf`)
+      doc.save(`${certificateNumber(outcome.imageHash, now, report)}.pdf`)
     } finally {
       setPdfBusy(false)
     }
   }
 
-  const verdict =
-    outcome?.kind === 'attested' ? 'ok' : outcome?.kind === 'mismatch' ? 'bad' : outcome?.kind === 'not-attested' ? 'none' : null
+  const verdict = outcome ? ({ attested: 'ok', tampered: 'bad', 'not-attested': 'none', unreadable: 'none' } as const)[outcome.kind] : null
+  const L = outcome?.lsb ?? null
+  const title = outcome
+    ? outcome.kind === 'attested'
+      ? t.verifyStatusAttested
+      : outcome.kind === 'tampered'
+        ? t.verifyStatusTampered
+        : outcome.kind === 'unreadable'
+          ? t.verifyStatusUnreadable
+          : t.verifyNoMark
+    : ''
+  const msg = outcome
+    ? outcome.kind === 'attested'
+      ? L ? t.verifyMsgLsbAttested : t.verifyMsgAttested
+      : outcome.kind === 'tampered'
+        ? L ? t.verifyMsgLsbTampered : t.verifyMsgTampered
+        : outcome.kind === 'unreadable'
+          ? t.verifyMsgUnreadable
+          : t.verifyMsgNotAttested
+    : ''
 
   return (
     <section className="slide page-deep verify visible" id="verify">
@@ -254,9 +348,12 @@ export function VerifyPage() {
         <div className="vbar">
           <p className="vbar__explainer">{t.verifyExplainer}</p>
           <div className="vbar__actions">
-            <button type="button" className="vbar__sample" onClick={() => void loadSample()} disabled={sampleBusy}>
-              {sampleBusy ? t.verifyLoadingSample : t.verifyTrySample}
-            </button>
+            <span className="vbar__samples">
+              <span className="vbar__samplelabel">{sampleBusy ? t.verifyLoadingSample : t.verifyTrySample}</span>
+              <button type="button" className="vbar__sample" onClick={() => void loadSample('lsb')} disabled={sampleBusy}>{t.verifySampleLsb}</button>
+              <button type="button" className="vbar__sample" onClick={() => void loadSample('tampered')} disabled={sampleBusy}>{t.verifySampleTampered}</button>
+              <button type="button" className="vbar__sample" onClick={() => void loadSample('manifest')} disabled={sampleBusy}>{t.verifySampleManifest}</button>
+            </span>
             <button
               type="button"
               className="cta-btn cta-btn--primary cta-btn--wide"
@@ -269,69 +366,64 @@ export function VerifyPage() {
         </div>
       </Reveal>
 
-      {outcome && outcome.kind !== 'need-image' ? (
+      {outcome ? (
         <div className={`vresult vresult--${verdict}`} aria-live="polite">
           <div className="vresult__head">
             <span className="vresult__label">{t.verifyResultTitle}</span>
-            <span className="vresult__demo">{t.verifyStatusDemo}</span>
+            <span className="vresult__demo">{L ? t.verifyMethodLsb : t.verifyStatusDemo}</span>
           </div>
           <div className="vresult__verdict">
             <span className="vresult__dot" aria-hidden="true" />
-            <h2>
-              {outcome.kind === 'attested'
-                ? t.verifyStatusAttested
-                : outcome.kind === 'mismatch'
-                  ? t.verifyStatusTampered
-                  : t.verifyStatusNotAttested}
-            </h2>
+            <h2>{title}</h2>
           </div>
-          <p className="vresult__msg">
-            {outcome.kind === 'attested'
-              ? t.verifyMsgAttested
-              : outcome.kind === 'mismatch'
-                ? t.verifyMsgTampered
-                : t.verifyMsgNotAttested}
-          </p>
+          <p className="vresult__msg">{msg}</p>
+
+          {L && thumb ? (
+            <figure className="vmap">
+              <div className="vmap__frame">
+                <img src={thumb} alt="" />
+                {L.badBlocks.length ? <TamperOverlay grid={L.grid} bad={L.badBlocks} /> : null}
+              </div>
+              <figcaption>{t.verifyTamperMapLabel} · {L.badBlocks.length} / {L.grid[0] * L.grid[1]}</figcaption>
+            </figure>
+          ) : null}
 
           <dl className="vresult__table">
+            <div><dt>{t.verifyMethodLabel}</dt><dd>{outcome.method === 'lsb' ? t.verifyMethodLsb : outcome.method === 'manifest' ? t.verifyMethodManifest : t.verifyMethodNone}</dd></div>
             <div><dt>{t.verifyFileLabel}</dt><dd>{outcome.fileName} · {fmtSize(outcome.fileSize)}</dd></div>
-            {dims ? <div><dt>{t.verifyDimensionsLabel}</dt><dd>{dims.w} × {dims.h} px</dd></div> : null}
+            {outcome.width && outcome.height ? <div><dt>{t.verifyDimensionsLabel}</dt><dd>{outcome.width} × {outcome.height} px</dd></div> : null}
             <div><dt>{t.verifyHashLabel}</dt><dd className="mono">{outcome.imageHash}</dd></div>
-            {outcome.kind === 'not-attested' ? (
-              <div><dt>{t.verifyMatchLabel}</dt><dd>{t.verifyNoManifestNote}</dd></div>
-            ) : (
+            {L ? (
+              <>
+                <div><dt>{t.verifySigLabel}</dt><dd className={L.signatureValid ? 'is-ok' : 'is-bad'}>{L.signatureValid ? t.verifySigValid : t.verifySigInvalid}</dd></div>
+                <div><dt>{t.verifyMatchLabel}</dt><dd className={L.contentMatch ? 'is-ok' : 'is-bad'}>{L.contentMatch ? t.verifyMatchYes : t.verifyMatchNo}</dd></div>
+                {L.badBlocks.length ? <div><dt>{t.verifyBadBlocksLabel}</dt><dd>{L.badBlocks.length} / {L.grid[0] * L.grid[1]}</dd></div> : null}
+                {L.meta.signer || L.meta.deviceId ? <div><dt>{t.verifySignerLabel}</dt><dd>{L.meta.signer ?? L.meta.deviceId}</dd></div> : null}
+                {L.meta.capturedAt ? <div><dt>{t.verifyTimeLabel}</dt><dd>{L.meta.capturedAt}</dd></div> : null}
+              </>
+            ) : outcome.manifest ? (
               <>
                 <div>
                   <dt>{t.verifyMatchLabel}</dt>
-                  <dd className={outcome.kind === 'attested' ? 'is-ok' : 'is-bad'}>
-                    {outcome.kind === 'attested' ? t.verifyMatchYes : t.verifyMatchNo}
-                  </dd>
+                  <dd className={outcome.kind === 'attested' ? 'is-ok' : 'is-bad'}>{outcome.kind === 'attested' ? t.verifyMatchYes : t.verifyMatchNo}</dd>
                 </div>
-                {outcome.manifest.contentHash ? (
-                  <div><dt>{t.verifyManifestHashLabel}</dt><dd className="mono">{outcome.manifest.contentHash}</dd></div>
-                ) : null}
-                {outcome.manifest.manifestId ? (
-                  <div><dt>{t.verifyManifestIdLabel}</dt><dd>{outcome.manifest.manifestId}</dd></div>
-                ) : null}
-                {outcome.manifest.signer ? (
-                  <div><dt>{t.verifySignerLabel}</dt><dd>{outcome.manifest.signer}</dd></div>
-                ) : null}
-                {outcome.manifest.timestamp ? (
-                  <div><dt>{t.verifyTimeLabel}</dt><dd>{outcome.manifest.timestamp}</dd></div>
-                ) : null}
+                {outcome.manifest.contentHash ? <div><dt>{t.verifyManifestHashLabel}</dt><dd className="mono">{outcome.manifest.contentHash}</dd></div> : null}
+                {outcome.manifest.manifestId ? <div><dt>{t.verifyManifestIdLabel}</dt><dd>{outcome.manifest.manifestId}</dd></div> : null}
+                {outcome.manifest.signer ? <div><dt>{t.verifySignerLabel}</dt><dd>{outcome.manifest.signer}</dd></div> : null}
+                {outcome.manifest.timestamp ? <div><dt>{t.verifyTimeLabel}</dt><dd>{outcome.manifest.timestamp}</dd></div> : null}
               </>
+            ) : (
+              <div><dt>{t.verifyMatchLabel}</dt><dd>{t.verifyNoManifestNote}</dd></div>
             )}
           </dl>
 
           <div className="vresult__actions">
-            {outcome.kind === 'attested' ? (
-              <button type="button" className="cta-btn cta-btn--primary cta-btn--wide" onClick={() => void downloadPdf()} disabled={pdfBusy}>
-                {pdfBusy ? t.verifyGeneratingPdf : t.verifyDownloadPdf}
-              </button>
-            ) : (
-              <Link className="cta-btn cta-btn--primary cta-btn--wide" to="/introduce">{t.verifyCtaLearn}</Link>
-            )}
+            <button type="button" className="cta-btn cta-btn--primary cta-btn--wide" onClick={() => void downloadPdf()} disabled={pdfBusy}>
+              {pdfBusy ? t.verifyGeneratingPdf : outcome.kind === 'attested' ? t.verifyDownloadPdf : t.verifyDownloadReport}
+            </button>
+            {outcome.kind !== 'attested' ? <Link className="cta-btn cta-btn--wide" to="/introduce">{t.verifyCtaLearn}</Link> : null}
           </div>
+          {L ? <p className="verify-note">{t.verifyLsbPreview}</p> : null}
           <p className="verify-note">{t.verifyDemoNote}</p>
         </div>
       ) : null}
