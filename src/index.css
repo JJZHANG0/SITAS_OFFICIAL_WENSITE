@@ -2711,3 +2711,89 @@ body,
     padding-left: 0 !important;
   }
 }
+
+/* ============================================================
+   SCROLL ROOT FIX — overflow-x:hidden forces overflow-y:auto,
+   turning sections into nested scrollers (trackpad latching).
+   `clip` clips without creating a scroll container.
+   ============================================================ */
+body, #root, .site, .page-shell, .slide, .page-shell > .slide.page-deep,
+.introduce.page-deep, .about-stack, .product-module, .product-modules,
+.company.page-deep, .home-left, .home-right {
+  overflow-x: clip !important;
+  overflow-y: visible !important;
+}
+html { overflow-x: clip; overflow-y: auto; }
+
+/* Mouse clicks: no focus ring; keyboard keeps focus-visible */
+.site-header a:focus:not(:focus-visible),
+.site-header button:focus:not(:focus-visible) { outline: none; }
+.site-header a:focus-visible,
+.site-header button:focus-visible { outline: 1px solid var(--text); outline-offset: 4px; }
+
+/* ============================================================
+   FEATURES DROPDOWN — premium panel
+   ============================================================ */
+.site-header .nav-drop > button { display: inline-flex; align-items: center; gap: 6px; }
+.site-header .nav-drop > button span { margin-left: 0; transition: transform .25s ease; display: inline-block; }
+.site-header .nav-drop > button[aria-expanded="true"] span { transform: rotate(45deg); }
+
+.site-header .drop-menu.drop-menu--features {
+  top: 100%;
+  left: 50%;
+  right: auto;
+  min-width: 0;
+  width: 280px;
+  padding: 0;
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--bg);
+  box-shadow: 0 24px 48px -24px rgba(0,0,0,.35);
+  transform: translate(-50%, -4px);
+  transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+}
+.site-header .drop-menu.drop-menu--features.show {
+  transform: translate(-50%, 0);
+  transition: opacity .18s ease, transform .18s ease, visibility 0s;
+}
+/* seamless hover bridge across the 12px gap */
+.site-header .drop-menu--features::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -13px; height: 13px;
+}
+.site-header .drop-menu--features a {
+  display: grid;
+  gap: 4px;
+  padding: 14px 18px;
+  min-height: 62px;
+  align-content: center;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400 !important;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  transition: background .15s ease, padding-left .2s ease;
+}
+.site-header .drop-menu--features a:last-child { border-bottom: 0; }
+.site-header .drop-menu--features a small {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--muted);
+  font-weight: 400;
+}
+.site-header .drop-menu--features a:hover,
+.site-header .drop-menu--features a:focus-visible {
+  background: var(--surface2);
+  padding-left: 22px;
+  outline: none;
+}
+@media (max-width: 1000px) {
+  .site-header .drop-menu.drop-menu--features,
+  .site-header .drop-menu.drop-menu--features.show { left: 0; transform: none; width: 100%; margin-top: 4px; }
+}
+.slide, .page-shell > .slide.page-deep { overflow: clip !important; }

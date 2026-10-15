@@ -22,6 +22,10 @@ export type Copy = {
   navVerify: string
   navBasic: string
   navPro: string
+  descBasic: string
+  descPro: string
+  descProduct: string
+  descCases: string
   language: string
   mode: string
   light: string
@@ -387,6 +391,10 @@ export const copy: Record<Lang, Copy> = {
     navVerify: 'Image Verify',
     navBasic: 'SITAS BASIC',
     navPro: 'SITAS PRO',
+    descBasic: 'Entry encrypted eyepiece',
+    descPro: 'Higher-tier capture + TSA',
+    descProduct: 'System overview',
+    descCases: 'Tamper localization examples',
     ctaVerifyImage: 'Verify an image',
     ctaLearnBasic: 'Learn about BASIC',
     ctaLearnPro: 'Learn about PRO',
@@ -727,6 +735,10 @@ export const copy: Record<Lang, Copy> = {
     navVerify: '图片查验',
     navBasic: 'SITAS BASIC',
     navPro: 'SITAS PRO',
+    descBasic: '入门级加密目镜',
+    descPro: '进阶采集 · 可信时间',
+    descProduct: '产品体系总览',
+    descCases: '篡改定位案例',
     ctaVerifyImage: '查验图片',
     ctaLearnBasic: '了解 BASIC',
     ctaLearnPro: '了解 PRO',

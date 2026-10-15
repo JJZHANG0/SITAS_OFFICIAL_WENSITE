@@ -108,15 +108,19 @@ export function Header() {
           <div className={`drop-menu drop-menu--features${featuresOpen ? ' show' : ''}`}>
             <Link to="/product/basic" onClick={() => setFeaturesOpen(false)}>
               {t.navBasic}
+              <small>{t.descBasic}</small>
             </Link>
             <Link to="/product/pro" onClick={() => setFeaturesOpen(false)}>
               {t.navPro}
+              <small>{t.descPro}</small>
             </Link>
             <Link to="/product" onClick={() => setFeaturesOpen(false)}>
               {t.product}
+              <small>{t.descProduct}</small>
             </Link>
             <Link to="/cases" onClick={() => setFeaturesOpen(false)}>
               {t.cases}
+              <small>{t.descCases}</small>
             </Link>
           </div>
         </div>
