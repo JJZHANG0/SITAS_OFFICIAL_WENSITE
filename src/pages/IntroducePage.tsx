@@ -73,11 +73,12 @@ export function IntroducePage() {
             <span className="deep-card-label">{t.introSolutionTitle}</span>
             <p>{t.introSolutionBody}</p>
           </Reveal>
-          <Reveal delay={100}>
-            <VisualSlot label="VISUAL / MANIFEST SCHEMA" ratio="wide" />
-          </Reveal>
         </div>
       </div>
+
+      <Reveal className="intro-banner" delay={60}>
+        <VisualSlot label="VISUAL / MANIFEST SCHEMA" ratio="wide" />
+      </Reveal>
 
       <Reveal className="pillars-block" delay={40}>
         <p className="eyebrow">{t.introPillarsTitle}</p>
