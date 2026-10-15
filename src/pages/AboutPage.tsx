@@ -3,6 +3,7 @@ import { Reveal } from '../components/Reveal'
 import { VisualSlot } from '../components/VisualSlot'
 import { PageCta } from '../components/PageCta'
 import { useSite } from '../context/SiteContext'
+import { TeamSection } from '../components/TeamSection'
 
 export function AboutPage() {
   const { t } = useSite()
@@ -59,6 +60,8 @@ export function AboutPage() {
             ))}
           </div>
         </Reveal>
+
+        <TeamSection />
 
         <Reveal className="about-cta-block" delay={160}>
           <p className="eyebrow">{t.ctaPilot}</p>

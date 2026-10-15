@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Logo } from './Logo'
 import { useSite } from '../context/SiteContext'
 import type { Lang, Theme } from '../context/SiteContext'
@@ -11,7 +11,7 @@ export function Header() {
   const { t, lang, theme, setLang, setTheme } = useSite()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [featuresOpen, setFeaturesOpen] = useState(false)
+  const [openDrop, setOpenDrop] = useState<string | null>(null)
   const [langOpen, setLangOpen] = useState(false)
   const [modeOpen, setModeOpen] = useState(false)
   const headerRef = useRef<HTMLElement>(null)
@@ -19,7 +19,7 @@ export function Header() {
 
   useEffect(() => {
     setMenuOpen(false)
-    setFeaturesOpen(false)
+    setOpenDrop(null)
     setLangOpen(false)
     setModeOpen(false)
   }, [location.pathname])
@@ -27,7 +27,7 @@ export function Header() {
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
       if (!headerRef.current?.contains(e.target as Node)) {
-        setFeaturesOpen(false)
+        setOpenDrop(null)
         setLangOpen(false)
         setModeOpen(false)
       }
@@ -43,18 +43,13 @@ export function Header() {
     [],
   )
 
-  const featuresActive =
-    location.pathname === '/product' ||
-    location.pathname.startsWith('/product/') ||
-    location.pathname === '/cases'
-
-  const openFeatures = () => {
+  const openMenu = (id: string) => {
     if (featuresTimer.current) window.clearTimeout(featuresTimer.current)
-    featuresTimer.current = window.setTimeout(() => setFeaturesOpen(true), HOVER_OPEN_MS)
+    featuresTimer.current = window.setTimeout(() => setOpenDrop(id), HOVER_OPEN_MS)
   }
-  const closeFeatures = () => {
+  const closeMenu = () => {
     if (featuresTimer.current) window.clearTimeout(featuresTimer.current)
-    featuresTimer.current = window.setTimeout(() => setFeaturesOpen(false), HOVER_CLOSE_MS)
+    featuresTimer.current = window.setTimeout(() => setOpenDrop(null), HOVER_CLOSE_MS)
   }
 
   const pickLang = (next: Lang) => {
@@ -83,56 +78,38 @@ export function Header() {
         className={`main-nav main-nav--center${menuOpen ? ' open' : ''}`}
         aria-label="Main navigation"
       >
-        <NavLink to="/introduce" className={({ isActive }) => (isActive ? 'active' : '')}>
-          {t.nav[0]}
-        </NavLink>
-
-        <div
-          className="nav-drop"
-          onMouseEnter={openFeatures}
-          onMouseLeave={closeFeatures}
-          onFocus={openFeatures}
-          onBlur={(e) => {
-            if (!e.currentTarget.contains(e.relatedTarget as Node)) closeFeatures()
-          }}
-        >
-          <button
-            type="button"
-            className={featuresActive ? 'active' : ''}
-            aria-expanded={featuresOpen}
-            aria-haspopup="true"
-            onClick={() => setFeaturesOpen((v) => !v)}
-          >
-            {t.nav[1]} <span>+</span>
-          </button>
-          <div className={`drop-menu drop-menu--features${featuresOpen ? ' show' : ''}`}>
-            <Link to="/product/basic" onClick={() => setFeaturesOpen(false)}>
-              {t.navBasic}
-              <small>{t.descBasic}</small>
-            </Link>
-            <Link to="/product/pro" onClick={() => setFeaturesOpen(false)}>
-              {t.navPro}
-              <small>{t.descPro}</small>
-            </Link>
-            <Link to="/product" onClick={() => setFeaturesOpen(false)}>
-              {t.product}
-              <small>{t.descProduct}</small>
-            </Link>
-            <Link to="/cases" onClick={() => setFeaturesOpen(false)}>
-              {t.cases}
-              <small>{t.descCases}</small>
-            </Link>
-          </div>
-        </div>
-
-        <NavLink to="/partnership" className={({ isActive }) => (isActive ? 'active' : '')}>
-          {t.nav[2]}
-        </NavLink>
-        <NavLink to="/development" className={({ isActive }) => (isActive ? 'active' : '')}>
-          {t.nav[3]}
-        </NavLink>
+        <NavDrop
+          id="introduce"
+          label={t.nav[0]}
+          to="/introduce"
+          active={location.pathname === '/introduce' || location.pathname.startsWith('/product/')}
+          open={openDrop === 'introduce'}
+          onOpen={openMenu}
+          onClose={closeMenu}
+          onToggle={(id) => setOpenDrop((v) => (v === id ? null : id))}
+          items={[
+            { to: '/product/basic', label: t.navBasic, desc: t.descBasic },
+            { to: '/product/pro', label: t.navPro, desc: t.descPro },
+          ]}
+        />
+        <NavDrop
+          id="features"
+          label={t.nav[1]}
+          active={location.pathname === '/product' || location.pathname === '/cases'}
+          open={openDrop === 'features'}
+          onOpen={openMenu}
+          onClose={closeMenu}
+          onToggle={(id) => setOpenDrop((v) => (v === id ? null : id))}
+          items={[
+            { to: '/product', label: t.navHighlights, desc: t.descProduct },
+            { to: '/cases', label: t.cases, desc: t.descCases },
+          ]}
+        />
         <NavLink to="/about" className={({ isActive }) => (isActive ? 'active' : '')}>
           {t.nav[4]}
+        </NavLink>
+        <NavLink to="/partnership" className={({ isActive }) => (isActive ? 'active' : '')}>
+          {t.nav[2]}
         </NavLink>
         <NavLink to="/verify" className={({ isActive }) => (isActive ? 'active' : '')}>
           {t.navVerify}
@@ -182,5 +159,52 @@ export function Header() {
         </div>
       </div>
     </header>
+  )
+}
+
+type DropItem = { to: string; label: string; desc: string }
+
+function NavDrop({
+  id, label, to, active, open, items, onOpen, onClose, onToggle,
+}: {
+  id: string
+  label: string
+  to?: string
+  active: boolean
+  open: boolean
+  items: DropItem[]
+  onOpen: (id: string) => void
+  onClose: () => void
+  onToggle: (id: string) => void
+}) {
+  const navigate = useNavigate()
+  return (
+    <div
+      className="nav-drop"
+      onMouseEnter={() => onOpen(id)}
+      onMouseLeave={onClose}
+      onFocus={() => onOpen(id)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) onClose()
+      }}
+    >
+      <button
+        type="button"
+        className={active ? 'active' : ''}
+        aria-expanded={open}
+        aria-haspopup="true"
+        onClick={() => (to ? navigate(to) : onToggle(id))}
+      >
+        {label} <span aria-hidden="true">+</span>
+      </button>
+      <div className={`drop-menu drop-menu--features${open ? ' show' : ''}`}>
+        {items.map((it) => (
+          <Link key={it.to} to={it.to}>
+            {it.label}
+            <small>{it.desc}</small>
+          </Link>
+        ))}
+      </div>
+    </div>
   )
 }

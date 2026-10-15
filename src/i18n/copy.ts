@@ -25,6 +25,10 @@ export type Copy = {
   descBasic: string
   descPro: string
   descProduct: string
+  navHighlights: string
+  teamKicker: string
+  teamTitle: string
+  teamLead: string
   descCases: string
   language: string
   mode: string
@@ -393,7 +397,11 @@ export const copy: Record<Lang, Copy> = {
     navPro: 'SITAS PRO',
     descBasic: 'Entry encrypted eyepiece',
     descPro: 'Higher-tier capture + TSA',
-    descProduct: 'System overview',
+    descProduct: 'What makes SITAS different',
+    navHighlights: 'Key Highlights',
+    teamKicker: 'Team',
+    teamTitle: 'The people behind SITAS.',
+    teamLead: 'Imaging, cryptography and integrity — one small team.',
     descCases: 'Tamper localization examples',
     ctaVerifyImage: 'Verify an image',
     ctaLearnBasic: 'Learn about BASIC',
@@ -737,7 +745,11 @@ export const copy: Record<Lang, Copy> = {
     navPro: 'SITAS PRO',
     descBasic: '入门级加密目镜',
     descPro: '进阶采集 · 可信时间',
-    descProduct: '产品体系总览',
+    descProduct: 'SITAS 的核心优势',
+    navHighlights: '核心亮点',
+    teamKicker: '团队',
+    teamTitle: 'SITAS 背后的人。',
+    teamLead: '成像、密码学与科研诚信——一支精干的团队。',
     descCases: '篡改定位案例',
     ctaVerifyImage: '查验图片',
     ctaLearnBasic: '了解 BASIC',
