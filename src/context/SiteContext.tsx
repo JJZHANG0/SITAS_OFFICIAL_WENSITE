@@ -90,14 +90,14 @@ export function SiteProvider({ children }: { children: ReactNode }) {
     // Navigate quickly so the destination mounts under the overlay
     window.setTimeout(() => {
       action()
-    }, reduce ? 40 : 90)
+    }, 0)
     // Hide after draw + brief hold (~1.5–1.8s total)
     loaderTimer.current = window.setTimeout(
       () => {
         setLoaderVisible(false)
         loaderTimer.current = null
       },
-      reduce ? 280 : 1520,
+      reduce ? 120 : 650,
     )
   }, [])
 

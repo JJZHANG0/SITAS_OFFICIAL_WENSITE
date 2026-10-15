@@ -98,6 +98,8 @@ export type Copy = {
   ctaLearnBasic: string
   ctaLearnPro: string
   ctaLearnApp: string
+  ctaDownloadMac: string
+  ctaDownloadWin: string
   modulesKicker: string
   moduleBasic: {
     kicker: string
@@ -362,9 +364,11 @@ export const copy: Record<Lang, Copy> = {
     ctaSeeIntroduce: 'What is SITAS',
     navVerify: 'Image Verify',
     ctaVerifyImage: 'Verify an image',
-    ctaLearnBasic: 'Explore BASIC',
-    ctaLearnPro: 'Explore PRO',
+    ctaLearnBasic: 'Learn about BASIC',
+    ctaLearnPro: 'Learn about PRO',
     ctaLearnApp: 'Explore Companion',
+    ctaDownloadMac: 'Download for Mac',
+    ctaDownloadWin: 'Download for Windows',
     modulesKicker: 'Product lineup',
     moduleBasic: {
       kicker: '01 / Hardware',
@@ -621,6 +625,8 @@ export const copy: Record<Lang, Copy> = {
     ctaLearnBasic: '了解 BASIC',
     ctaLearnPro: '了解 PRO',
     ctaLearnApp: '了解 Companion',
+    ctaDownloadMac: '下载 Mac 版本',
+    ctaDownloadWin: '下载 Windows 版本',
     modulesKicker: '产品矩阵',
     moduleBasic: {
       kicker: '01 / 硬件',

@@ -21,7 +21,7 @@ export function LogoLoader() {
     const t = window.setTimeout(() => {
       setExiting(false)
       seen.current = false
-    }, 300)
+    }, 200)
     return () => window.clearTimeout(t)
   }, [loaderVisible])
 

@@ -2447,3 +2447,8 @@ body,
     grid-template-columns: 1fr;
   }
 }
+
+/* Loader never blocks input; module CTA width */
+.logo-loader { pointer-events: none !important; transition: opacity 0.2s ease; }
+.cta-btn--wide { min-width: 220px; justify-content: center; padding-left: 32px; padding-right: 32px; }
+.reveal { contain: none; }

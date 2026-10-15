@@ -5,6 +5,10 @@ import { VisualSlot } from '../components/VisualSlot'
 import { PageCta } from '../components/PageCta'
 import { useSite } from '../context/SiteContext'
 
+// TODO: replace with real Companion App installer URLs when available
+const COMPANION_MAC_URL = 'mailto:partnerships@sitas.bio?subject=SITAS%20Companion%20for%20Mac'
+const COMPANION_WIN_URL = 'mailto:partnerships@sitas.bio?subject=SITAS%20Companion%20for%20Windows'
+
 export function IntroducePage() {
   const { t } = useSite()
 
@@ -14,24 +18,24 @@ export function IntroducePage() {
       tone: 'dark' as const,
       flip: false,
       data: t.moduleBasic,
-      cta: { to: '/product', label: t.ctaLearnBasic },
-      secondary: { to: '/verify', label: t.ctaVerifyImage },
+      actions: [{ href: '/product', label: t.ctaLearnBasic, primary: true, internal: true }],
     },
     {
       key: 'pro',
       tone: 'light' as const,
       flip: true,
       data: t.modulePro,
-      cta: { to: '/product', label: t.ctaLearnPro },
-      secondary: { to: '/partnership', label: t.ctaSeePartner },
+      actions: [{ href: '/product', label: t.ctaLearnPro, primary: true, internal: true }],
     },
     {
       key: 'app',
       tone: 'dark' as const,
       flip: false,
       data: t.moduleApp,
-      cta: { to: '/verify', label: t.ctaVerifyImage },
-      secondary: { to: '/cases', label: t.ctaSeeVerify },
+      actions: [
+        { href: COMPANION_MAC_URL, label: t.ctaDownloadMac, primary: true, internal: false },
+        { href: COMPANION_WIN_URL, label: t.ctaDownloadWin, primary: false, internal: false },
+      ],
     },
   ]
 
@@ -109,12 +113,18 @@ export function IntroducePage() {
               <p className="product-module__body">{m.data.body}</p>
               <p className="product-module__meta">{m.data.meta}</p>
               <div className="product-module__actions">
-                <Link className="cta-btn cta-btn--primary" to={m.cta.to}>
-                  {m.cta.label}
-                </Link>
-                <Link className="cta-btn cta-btn--ghost" to={m.secondary.to}>
-                  {m.secondary.label}
-                </Link>
+                {m.actions.map((a) => {
+                  const cls = `cta-btn cta-btn--wide ${a.primary ? 'cta-btn--primary' : 'cta-btn--ghost'}`
+                  return a.internal ? (
+                    <Link key={a.label} className={cls} to={a.href}>
+                      {a.label}
+                    </Link>
+                  ) : (
+                    <a key={a.label} className={cls} href={a.href}>
+                      {a.label}
+                    </a>
+                  )
+                })}
               </div>
             </div>
             <div className="product-module__visual">
