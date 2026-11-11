@@ -1,5 +1,5 @@
 import { Reveal } from '../components/Reveal'
-import { VisualSlot } from '../components/VisualSlot'
+import { TrustNetwork } from '../components/TrustNetwork'
 import { PageCta } from '../components/PageCta'
 import { useSite } from '../context/SiteContext'
 
@@ -29,7 +29,7 @@ export function PartnershipPage() {
       </div>
 
       <Reveal delay={160}>
-        <VisualSlot label="VISUAL / PARTNERSHIP PATH" ratio="wide" />
+        <TrustNetwork />
       </Reveal>
 
       <Reveal className="page-cta-wrap" delay={200}>
