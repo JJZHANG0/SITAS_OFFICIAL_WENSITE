@@ -1,0 +1,153 @@
+/* About company slide only: looser Verisci lockup + product orbit. */
+
+.company > .company-title,
+.company > .company-statement {
+  min-width: 0;
+}
+
+.verisci-cluster {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: clamp(340px, 64vh, 760px);
+  padding: 8px 4px 8px 40px;
+  gap: clamp(28px, 4vh, 48px);
+}
+
+.verisci-cluster__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: clamp(18px, 3vw, 48px);
+  flex-wrap: wrap;
+}
+
+.verisci-cluster__kicker,
+.verisci-cluster__line {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.verisci-cluster__row--line {
+  flex-wrap: nowrap;
+  gap: clamp(10px, 1.6vw, 22px);
+}
+
+.company .verisci-cluster__name {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: clamp(40px, 17cqi, 108px);
+  letter-spacing: -0.045em;
+  line-height: 0.92;
+  color: var(--text);
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.company .verisci-cluster__name span {
+  color: var(--text);
+}
+
+.kw-drift {
+  display: inline-block;
+  animation: kw-drift var(--dur) ease-in-out var(--delay) infinite;
+  will-change: transform;
+}
+
+@keyframes kw-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(var(--dx), var(--dy), 0);
+  }
+}
+
+.company > .company-statement {
+  display: flex;
+  align-items: center;
+}
+
+.product-orbit {
+  width: 100%;
+  margin: 0;
+}
+
+.product-orbit__stage {
+  height: clamp(300px, 62vh, 720px);
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  background: transparent;
+}
+
+.product-orbit__stage.is-dragging {
+  cursor: grabbing;
+}
+
+.product-orbit__stage:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.product-orbit__stage:focus-visible {
+  outline: 1px solid var(--text);
+  outline-offset: 4px;
+}
+
+.product-orbit__stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.product-orbit__hint {
+  margin: 8px 0 0;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+@media (max-width: 1000px) {
+  .verisci-cluster {
+    min-height: 0;
+    justify-content: flex-start;
+    gap: clamp(32px, 6vh, 56px);
+    padding-bottom: 8px;
+  }
+
+  .verisci-cluster__row,
+  .verisci-cluster__row--line {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    column-gap: clamp(22px, 7vw, 56px);
+    row-gap: clamp(16px, 3vh, 28px);
+  }
+
+  .product-orbit__stage {
+    height: clamp(260px, 58vh, 520px);
+  }
+}
+
+@media (max-width: 650px) {
+  .company .verisci-cluster__name {
+    font-size: clamp(36px, 14vw, 64px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kw-drift {
+    animation: none;
+    transform: none;
+  }
+}

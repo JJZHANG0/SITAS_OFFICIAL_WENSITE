@@ -4,26 +4,21 @@ import { VisualSlot } from '../components/VisualSlot'
 import { PageCta } from '../components/PageCta'
 import { useSite } from '../context/SiteContext'
 import { TeamSection } from '../components/TeamSection'
+import { VerisciCluster } from '../components/VerisciCluster'
+import { ProductOrbit } from '../components/ProductOrbit'
+import '../components/about-company.css'
 
 export function AboutPage() {
-  const { t } = useSite()
+  const { t, lang } = useSite()
   return (
     <div className="about-stack">
       <section className="slide page-deep company visible" id="about-company">
         <div className="page-no">06 / ABOUT US · COMPANY</div>
         <Reveal className="company-title">
-          <p className="eyebrow">{t.companyKicker}</p>
-          <h1 className="headline-oneline">
-            Verisci<span>.</span>
-          </h1>
-          <p className="microcopy">{t.companyLine}</p>
+          <VerisciCluster lang={lang} kicker={t.companyKicker} line={t.companyLine} />
         </Reveal>
         <Reveal className="company-statement" delay={100}>
-          <p>{t.companyLead}</p>
-          <span>{t.companyBody}</span>
-          <div className="company-visual">
-            <VisualSlot label="VISUAL / LAB + LENS" ratio="wide" />
-          </div>
+          <ProductOrbit lang={lang} />
         </Reveal>
         <Reveal className="orb" delay={180}>
           <i />
